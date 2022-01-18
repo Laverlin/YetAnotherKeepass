@@ -174,6 +174,11 @@ const configuration: webpack.Configuration = {
         .on('error', (spawnError) => console.error(spawnError));
     },
   },
+
+  resolve: {
+
+  },
+
 };
 
 export default merge(baseConfig, configuration);

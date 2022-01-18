@@ -11,11 +11,13 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { IpcDispatcher } from './IpcCommunication/IpcDispatcher';
+import { Setting } from './entity/Setting';
+import { YaKeepassSetting } from './entity/YaKeepassSetting';
 
 export default class AppUpdater {
   constructor() {
@@ -27,19 +29,12 @@ export default class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
-
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
 }
 
-const isDevelopment =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const isDevelopment = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDevelopment) {
   require('electron-debug')();
@@ -71,17 +66,36 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  const yaKeepassSetting = Setting.load(YaKeepassSetting);
+  const { x, y, width, height } = yaKeepassSetting.windowSize;
+
+  Menu.setApplicationMenu(null);
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
-    icon: getAssetPath('icon.png'),
+    x,
+    y,
+    width,
+    height,
+    minWidth: 1100,
+    minHeight: 300,
+    frame: false,
+    icon: getAssetPath('icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true,
+      nodeIntegrationInWorker: true,
     },
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
+
+  const ipcDispatcher = new IpcDispatcher(yaKeepassSetting);
+  ipcDispatcher.subscribeOnIpcEvents();
+
+  mainWindow.on('resize', () => {
+    yaKeepassSetting.windowSize = mainWindow!.getBounds();
+    Setting.save(yaKeepassSetting);
+  });
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -96,15 +110,6 @@ const createWindow = async () => {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
-  });
-
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
-
-  // Open urls in the user's browser
-  mainWindow.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-    shell.openExternal(url);
   });
 
   // Remove this if your app does not use auto updates
