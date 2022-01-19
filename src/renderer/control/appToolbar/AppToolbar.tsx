@@ -7,8 +7,6 @@ import { SvgPath } from '../common/SvgPath';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   WebkitAppRegion: 'drag',
-  paddingRight: 0,
-  paddingLeft: 0,
   minHeight: `${consts.topBarHeight}px`,
   backgroundColor: theme.palette.primary.dark,
 }));
@@ -24,8 +22,8 @@ const Resizer = styled('div')(() => ({
 
 const ButtonIcon = styled(IconButton)(({ theme }) => ({
   WebkitAppRegion: 'no-drag',
-  height: consts.topBarHeight,
-  width: consts.topBarHeight,
+  height: `${consts.topBarHeight}px`,
+  width: `${consts.topBarHeight + 10}px`,
   borderRadius: 0,
   '&:hover': {
     backgroundColor: theme.palette.primary.main,
@@ -54,7 +52,7 @@ export const AppToolbar: FC = () => {
 
   return (
     <AppBar position="absolute">
-      <StyledToolbar variant="dense">
+      <StyledToolbar variant="dense" disableGutters>
         <Resizer />
 
         <Tooltip title="Settings">
