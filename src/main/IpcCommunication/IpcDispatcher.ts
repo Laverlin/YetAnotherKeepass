@@ -2,6 +2,7 @@
 import fs from 'fs';
 import { BrowserWindow, dialog, ipcMain, IpcMainEvent } from 'electron';
 import { Credentials, CryptoEngine, Kdbx, KdbxError, ProtectedValue } from 'kdbxweb';
+import { YakpKdbxItem } from '../entity/YakpKdbxItem';
 import { RenderSetting } from '../entity/RenderSetting';
 import { ReadKdbxResult } from '../entity/ReadKdbxResult';
 import { YakpError } from '../entity/YakpError';
@@ -9,6 +10,7 @@ import { argon2Hash } from '../argon';
 import { Setting } from '../entity/Setting';
 import { YaKeepassSetting } from '../entity/YaKeepassSetting';
 import { IpcChannels } from './IpcChannels';
+import { YakpMetadata } from '../entity/YakpMetadata';
 
 export type SystemCommand = 'minimize' | 'maximize' | 'restore' | 'exit';
 
@@ -68,8 +70,6 @@ export class IpcDispatcher {
 
   async onReadKdbx(event: IpcMainEvent, kdbxFilePath: string, value: Uint8Array, salt: Uint8Array) {
     const password = new ProtectedValue(value, salt);
-    console.log(password.getText());
-    console.log(`file ${kdbxFilePath}`);
 
     try {
       CryptoEngine.setArgon2Impl((...args) => argon2Hash(...args));
@@ -77,9 +77,17 @@ export class IpcDispatcher {
       const credentials = new Credentials(password, null);
       const database = await Kdbx.load(new Uint8Array(data).buffer, credentials);
 
-      const item = database.getDefaultGroup();
+      const items = Array.from(database.getDefaultGroup().allGroupsAndEntries()).map((i) =>
+        YakpKdbxItem.fromKdbx(i, database)
+      );
 
-      event.reply(IpcChannels.readKdbx, ReadKdbxResult.fromResult(item, kdbxFilePath));
+      event.reply(
+        IpcChannels.readKdbx,
+        ReadKdbxResult.fromResult(
+          items,
+          new YakpMetadata(kdbxFilePath, database.getDefaultGroup().uuid.id, database.meta.recycleBinUuid?.id)
+        )
+      );
     } catch (e) {
       const error: YakpError =
         e instanceof KdbxError ? new YakpError(e.code, e.message) : new YakpError('GenericError', e as string);

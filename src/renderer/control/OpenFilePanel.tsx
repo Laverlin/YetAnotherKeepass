@@ -14,6 +14,9 @@ import { RenderSetting } from 'main/entity/RenderSetting';
 import { IpcMainOpenDialog, IpcMainReadKdbx } from 'main/IpcCommunication/IpcExtention';
 
 import { FC, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import { itemListSelector, yakpMetadataAtom } from 'renderer/state/atom';
 import { DefaultKeeIcon } from '../entity/DefaultKeeIcon';
 import { SystemIcon } from '../entity/SystemIcon';
 import { SvgPath } from './common/SvgPath';
@@ -100,6 +103,11 @@ export const OpenFilePanel: FC = () => {
   const [isLoading, setLoading] = useState(false);
   const [setting, setSetting] = useState<RenderSetting | undefined>(undefined);
 
+  const setItems = useSetRecoilState(itemListSelector);
+  const setMetadata = useSetRecoilState(yakpMetadataAtom);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     window.electron.ipcRenderer.onSetting((s) => setSetting(s));
     window.electron.ipcRenderer.getSetting();
@@ -146,18 +154,10 @@ export const OpenFilePanel: FC = () => {
           : `${readKdbxResult.yakpError.errorId}: ${readKdbxResult.yakpError.message}`;
       setError(errorMsg);
     } else {
-      updateRecentFiles(readKdbxResult.kdbxFile);
-      console.log(readKdbxResult);
-      console.log(readKdbxResult.kdbxGroup!.name);
-      readKdbxResult.kdbxGroup!.notes = 'new note';
-      console.log(readKdbxResult);
-      const e1 = readKdbxResult.kdbxGroup!.entries[1];
-      console.log(e1);
-      const title = e1.fields.get('Title');
-      // e1.pushHistory();
-      // e1.times.update();
-      e1.fields.set('Title', `${title} modified`);
-      console.log(e1);
+      updateRecentFiles(readKdbxResult.yakpMetadata.kdbxFile);
+      setMetadata(readKdbxResult.yakpMetadata);
+      setItems(readKdbxResult.yakpKdbxItems);
+      navigate('/app');
     }
   };
 
@@ -245,7 +245,6 @@ export const OpenFilePanel: FC = () => {
               <ListItemText>
                 <Typography variant="body1">{file}</Typography>
               </ListItemText>
-
               <ClearButton id="clearButton" onClick={(e) => handleFileRemove(e, file)}>
                 <SvgPath path={SystemIcon.clear} />
               </ClearButton>

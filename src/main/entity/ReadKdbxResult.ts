@@ -1,10 +1,11 @@
-import { KdbxGroup } from 'kdbxweb';
 import { YakpError } from './YakpError';
+import { YakpKdbxItem } from './YakpKdbxItem';
+import { YakpMetadata } from './YakpMetadata';
 
 export class ReadKdbxResult {
-  kdbxGroup: KdbxGroup | undefined;
+  yakpKdbxItems: YakpKdbxItem[] = [];
 
-  kdbxFile: string = '';
+  yakpMetadata: YakpMetadata = new YakpMetadata('', '', undefined);
 
   yakpError: YakpError | undefined;
 
@@ -14,10 +15,10 @@ export class ReadKdbxResult {
     return result;
   }
 
-  static fromResult(group: KdbxGroup, kdbxFile: string) {
+  static fromResult(yakpKdbxItems: YakpKdbxItem[], metadata: YakpMetadata) {
     const result = new ReadKdbxResult();
-    result.kdbxGroup = group;
-    result.kdbxFile = kdbxFile;
+    result.yakpKdbxItems = yakpKdbxItems;
+    result.yakpMetadata = metadata;
     return result;
   }
 }

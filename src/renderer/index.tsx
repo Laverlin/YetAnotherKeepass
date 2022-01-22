@@ -6,6 +6,8 @@ import { CssBaseline } from '@mui/material';
 import { RecoilRoot } from 'recoil';
 import { MainFrame } from './control/MainFrame';
 import { OpenFilePanel } from './control/OpenFilePanel';
+import { MainLayout } from './control/MainLayout';
+import GlobalObserver from './state/GlobalObserver';
 
 const appTheme = createTheme({
   components: {
@@ -15,7 +17,7 @@ const appTheme = createTheme({
           overflow: 'hidden',
         },
         '&::-webkit-scrollbar': {
-          width: '10px',
+          width: '12px',
         },
         '&::-webkit-scrollbar-track': {
           background: 'transparent',
@@ -27,8 +29,8 @@ const appTheme = createTheme({
           background: 'transparent',
           borderRadius: '10px',
           backgroundClip: 'padding-box',
-          borderRight: '2px transparent solid',
-          borderLeft: '2px transparent solid',
+          borderRight: '3px transparent solid',
+          borderLeft: '3px transparent solid',
         },
         '&:hover': {
           '&::-webkit-scrollbar-thumb': {
@@ -42,19 +44,22 @@ const appTheme = createTheme({
     primary: {
       main: '#3a506b',
     },
+    background: {
+      default: '#F6F5F5',
+    },
   },
 });
 
 render(
   <RecoilRoot>
-    {/*  <GlobalObserver /> */}
+    <GlobalObserver />
     <React.StrictMode>
       <ThemeProvider theme={appTheme}>
         <CssBaseline />
         <Router>
           <MainFrame>
             <Routes>
-              <Route path="/app" />
+              <Route path="/app" element={<MainLayout />} />
               <Route path="/" element={<OpenFilePanel />} />
             </Routes>
           </MainFrame>

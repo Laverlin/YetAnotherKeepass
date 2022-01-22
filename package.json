@@ -215,6 +215,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@date-io/date-fns": "^2.11.0",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@mui/material": "^5.2.8",
