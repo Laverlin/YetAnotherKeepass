@@ -91,7 +91,7 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "IB",
+      "owner": "Laverlin",
       "repo": "YetAnotherKeepass"
     }
   },
