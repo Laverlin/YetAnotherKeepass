@@ -23,11 +23,17 @@ jobs:
         run: |
           npm install
 
+      - name: Get current time
+        uses: josStorer/get-current-time@v2
+        id: current-time
+        with:
+          format: YYDDD
+
       - name: npm test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm run package -- -c.extraMetadata.version=2.0.${{github.run_number}}
+          npm run package -- -c.extraMetadata.version=2.${{steps.current-time.outputs.formattedTime}}.${{github.run_number}}
           npm run lint
           npm exec tsc
           npm test
