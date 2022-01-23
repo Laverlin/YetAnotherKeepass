@@ -25,7 +25,7 @@ export class YakpKdbxItem {
     item.bgColor = (kdbxItem instanceof KdbxEntry && kdbxItem.bgColor) || '';
     item.customIconSid = kdbxItem.customIcon?.id;
     item.tags = kdbxItem.tags;
-    // item.binaries = (kdbxItem instanceof KdbxEntry && Array.from(kdbxItem.binaries.values()).map(b => b )) || [];
+    item.binaries = (kdbxItem instanceof KdbxEntry && Array.from(kdbxItem.binaries.keys())) || [];
     item.lastModifiedTime = kdbxItem.times.lastModTime || new Date();
     item.lastAccessTime = kdbxItem.times.lastAccessTime || item.lastModifiedTime;
     item.creationTime = kdbxItem.times.creationTime || item.lastModifiedTime;

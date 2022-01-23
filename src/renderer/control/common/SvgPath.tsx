@@ -19,7 +19,10 @@ export const SvgPathRaw: OverridableComponent<SvgIconTypeMap<IProps, 'svg'>> = (
 
 export const SvgPath = styled(SvgPathRaw, {
   shouldForwardProp: (prop) => prop !== 'size',
-})<{ size?: number }>(({ size }) => ({
-  height: `${size}px`,
-  width: `${size}px`,
-}));
+})<{ size?: number }>(
+  ({ size }) =>
+    size && {
+      height: `${size}px`,
+      width: `${size}px`,
+    }
+);

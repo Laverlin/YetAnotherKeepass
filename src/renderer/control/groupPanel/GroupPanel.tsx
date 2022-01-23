@@ -2,7 +2,7 @@ import { List, styled } from '@mui/material';
 import { allItemsGroupSid } from 'main/entity/YakpKdbxItem';
 import { FC, ReactFragment } from 'react';
 import { useRecoilValue } from 'recoil';
-import { itemListSelector, yakpMetadataAtom } from 'renderer/state/atom';
+import { allItemSelector, yakpMetadataAtom } from '../../state/atom';
 import { GroupItem } from './GroupItem';
 
 const OptionList = styled('div')(({ theme }) => ({
@@ -25,7 +25,6 @@ const divOverlayY = styled('div')`
 const MainList = styled(divOverlayY, {
   shouldForwardProp: (prop) => prop !== 'isWithRecycle',
 })<{ isWithRecycle: boolean }>(({ theme, isWithRecycle }) => ({
-  // overflow: 'hidden',
   position: 'absolute',
   paddingTop: theme.spacing(1),
   bottom: isWithRecycle ? theme.spacing(9) : 0,
@@ -48,7 +47,7 @@ const RecycleBinItem = styled('div')(({ theme }) => ({
 }));
 
 export const GroupPanel: FC = () => {
-  const items = useRecoilValue(itemListSelector);
+  const items = useRecoilValue(allItemSelector);
   const metadata = useRecoilValue(yakpMetadataAtom);
   if (!metadata) throw new Error('Metadata are not available, possible db open error');
 

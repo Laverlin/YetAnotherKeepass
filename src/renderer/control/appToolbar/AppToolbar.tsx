@@ -1,8 +1,8 @@
 import { AppBar, IconButton, styled, Toolbar, Tooltip } from '@mui/material';
 import { SystemCommand } from 'main/IpcCommunication/IpcDispatcher';
 import { FC, useState } from 'react';
-import { consts } from 'renderer/entity/consts';
-import { SystemIcon } from 'renderer/entity/SystemIcon';
+import { consts } from '../../entity/consts';
+import { SystemIcon } from '../../entity/SystemIcon';
 import { SvgPath } from '../common/SvgPath';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({

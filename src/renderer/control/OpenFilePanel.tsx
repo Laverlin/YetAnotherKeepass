@@ -16,7 +16,7 @@ import { IpcMainOpenDialog, IpcMainReadKdbx } from 'main/IpcCommunication/IpcExt
 import { FC, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
-import { itemListSelector, yakpMetadataAtom } from 'renderer/state/atom';
+import { allItemSelector, yakpCustomIconsAtom, yakpMetadataAtom } from 'renderer/state/atom';
 import { DefaultKeeIcon } from '../entity/DefaultKeeIcon';
 import { SystemIcon } from '../entity/SystemIcon';
 import { SvgPath } from './common/SvgPath';
@@ -103,8 +103,9 @@ export const OpenFilePanel: FC = () => {
   const [isLoading, setLoading] = useState(false);
   const [setting, setSetting] = useState<RenderSetting | undefined>(undefined);
 
-  const setItems = useSetRecoilState(itemListSelector);
+  const setItems = useSetRecoilState(allItemSelector);
   const setMetadata = useSetRecoilState(yakpMetadataAtom);
+  const setCustomIcons = useSetRecoilState(yakpCustomIconsAtom);
 
   const navigate = useNavigate();
 
@@ -157,6 +158,7 @@ export const OpenFilePanel: FC = () => {
       updateRecentFiles(readKdbxResult.yakpMetadata.kdbxFile);
       setMetadata(readKdbxResult.yakpMetadata);
       setItems(readKdbxResult.yakpKdbxItems);
+      setCustomIcons(readKdbxResult.customIcons);
       navigate('/app');
     }
   };

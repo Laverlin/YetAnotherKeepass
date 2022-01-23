@@ -19,7 +19,7 @@ export const yakpKdbxItemAtom = atomFamily<YakpKdbxItem, string>({
   default: (sid) => (sid === allItemsGroupSid ? allItemsGroup : new YakpKdbxItem()),
 });
 
-export const itemListSelector = selector<YakpKdbxItem[]>({
+export const allItemSelector = selector<YakpKdbxItem[]>({
   key: 'ItemListSelector',
   get: ({ get }) => get(yakpKdbxItemAtomIds).map((i) => get(yakpKdbxItemAtom(i))),
   set: ({ get, set, reset }, items) => {
@@ -73,7 +73,7 @@ export const groupStatSelector = selectorFamily<GroupStatistic, string>({
             : acc.closeExpired;
         return acc;
       };
-      return get(itemListSelector).reduce(reducer, new GroupStatistic());
+      return get(allItemSelector).reduce(reducer, new GroupStatistic());
     },
 });
 
@@ -131,4 +131,17 @@ export const selectItemSelector = selector<string | undefined>({
 
     set(yakpKdbxItemAtom(selectedSid), { ...selectedItem, isSelected: true });
   },
+});
+
+export const yakpCustomIconsAtom = atom<[string, string][]>({
+  key: 'yakpCustomIconsAtom',
+  default: [],
+});
+
+export const yakpCustomIconSelector = selectorFamily<string | undefined, string>({
+  key: 'yakpCustomIconSelector',
+  get:
+    (sid) =>
+    ({ get }) =>
+      get(yakpCustomIconsAtom).find((i) => i[0] === sid)?.[1],
 });

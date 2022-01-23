@@ -12,6 +12,11 @@ import { YaKeepassSetting } from '../entity/YaKeepassSetting';
 import { IpcChannels } from './IpcChannels';
 import { YakpMetadata } from '../entity/YakpMetadata';
 
+const image2Base64 = (image: Buffer | ArrayBuffer) => {
+  const data = image instanceof Buffer ? image : Buffer.from(image);
+  return `data:image;base64,${data.toString('base64')}`;
+};
+
 export type SystemCommand = 'minimize' | 'maximize' | 'restore' | 'exit';
 
 export class IpcDispatcher {
@@ -85,7 +90,8 @@ export class IpcDispatcher {
         IpcChannels.readKdbx,
         ReadKdbxResult.fromResult(
           items,
-          new YakpMetadata(kdbxFilePath, database.getDefaultGroup().uuid.id, database.meta.recycleBinUuid?.id)
+          new YakpMetadata(kdbxFilePath, database.getDefaultGroup().uuid.id, database.meta.recycleBinUuid?.id),
+          Array.from(database.meta.customIcons).map((i) => [i[0], image2Base64(i[1].data)])
         )
       );
     } catch (e) {

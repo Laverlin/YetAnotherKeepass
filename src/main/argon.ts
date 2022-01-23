@@ -1,7 +1,4 @@
-import {
-  Argon2Type,
-  Argon2Version,
-} from 'kdbxweb/dist/types/crypto/crypto-engine';
+import { Argon2Type, Argon2Version } from 'kdbxweb/dist/types/crypto/crypto-engine';
 import argon2 from 'argon2';
 
 /**

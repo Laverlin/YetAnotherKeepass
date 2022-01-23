@@ -1,6 +1,7 @@
 import { styled } from '@mui/material';
 import React, { useState } from 'react';
 import { GroupPanel } from './groupPanel/GroupPanel';
+import { EntryListPanel } from './listEntryPanel/EntryListPanel';
 
 /**
  * Object to store and calculate dragger position
@@ -102,7 +103,7 @@ export const MainLayout = () => {
       </Bar>
       <Dragger onMouseDown={(e) => handleMousedown(e, setLeftDragger)} style={{ left: leftDragger.position }} />
       <MiddleBar style={{ left: leftDragger.position, right: rightDragger.position }}>
-        {/* <EntryListPanel /> */}
+        <EntryListPanel />
       </MiddleBar>
 
       <Dragger onMouseDown={(e) => handleMousedown(e, setRightDragger)} style={{ right: rightDragger.position }} />

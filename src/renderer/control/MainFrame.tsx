@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import { styled } from '@mui/material';
 import { FC } from 'react';
-import { consts } from 'renderer/entity/consts';
+import { consts } from '../entity/consts';
 import { AppToolbar } from './appToolbar/AppToolbar';
 
 const TopBar = styled('div')(() => ({

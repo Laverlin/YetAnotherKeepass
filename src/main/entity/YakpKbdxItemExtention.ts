@@ -22,10 +22,6 @@ YakpKdbxItem.prototype.isExpired = function (this: YakpKdbxItem): boolean {
   return this.isExpires && (this.expiryTime?.valueOf() || 0) < Date.now();
 };
 
-YakpKdbxItem.prototype.getIcon = function (this: YakpKdbxItem): string {
-  return '';
-};
-
 YakpKdbxItem.prototype.getFieldUnprotected = function (this: YakpKdbxItem, fieldName: string): string {
   const field = this.fields[fieldName];
   return field instanceof ProtectedValue ? field.getText() : field.toString();

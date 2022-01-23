@@ -9,16 +9,19 @@ export class ReadKdbxResult {
 
   yakpError: YakpError | undefined;
 
+  customIcons: [string, string][] = [];
+
   static fromError(error: YakpError) {
     const result = new ReadKdbxResult();
     result.yakpError = error;
     return result;
   }
 
-  static fromResult(yakpKdbxItems: YakpKdbxItem[], metadata: YakpMetadata) {
+  static fromResult(yakpKdbxItems: YakpKdbxItem[], metadata: YakpMetadata, customIcons: [string, string][]) {
     const result = new ReadKdbxResult();
     result.yakpKdbxItems = yakpKdbxItems;
     result.yakpMetadata = metadata;
+    result.customIcons = customIcons;
     return result;
   }
 }

@@ -1,9 +1,9 @@
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
-import App from '../renderer/App';
+import { MainFrame } from '../renderer/control/MainFrame';
 
-describe('App', () => {
+describe('MainFrame', () => {
   it('should render', () => {
-    expect(render(<App />)).toBeTruthy();
+    expect(render(<MainFrame />)).toBeTruthy();
   });
 });
