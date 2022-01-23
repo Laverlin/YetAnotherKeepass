@@ -93,8 +93,10 @@ const createWindow = async () => {
   ipcDispatcher.subscribeOnIpcEvents();
 
   mainWindow.on('resize', () => {
-    yaKeepassSetting.windowSize = mainWindow!.getBounds();
-    Setting.save(yaKeepassSetting);
+    if (mainWindow) {
+      yaKeepassSetting.windowSize = mainWindow.getBounds();
+      Setting.save(yaKeepassSetting);
+    }
   });
 
   mainWindow.on('ready-to-show', () => {

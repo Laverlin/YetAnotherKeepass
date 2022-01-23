@@ -102,7 +102,7 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    const entryId = event.dataTransfer.getData('text');
+    // const entryId = event.dataTransfer.getData('text');
     event.dataTransfer.clearData();
     // const droppedItem = getDropped(entryId);
     // setTreeState(droppedItem?.moveItem(entryUuid));
