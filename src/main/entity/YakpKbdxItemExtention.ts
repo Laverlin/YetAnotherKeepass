@@ -30,3 +30,19 @@ YakpKdbxItem.prototype.getFieldUnprotected = function (this: YakpKdbxItem, field
 YakpKdbxItem.prototype.removeHistoryEntry = function (this: YakpKdbxItem, index: number): void {
   this.history.slice(index, 1);
 };
+
+export class ItemHelper {
+  static isExpired(item: YakpKdbxItem) {
+    return item.isExpires && (item.expiryTime?.valueOf() || 0) < Date.now();
+  }
+
+  static stripProtected(fieldValue: ProtectedValue | string) {
+    return fieldValue instanceof ProtectedValue ? fieldValue.getText() : fieldValue.toString();
+  }
+  /*
+  static removeHistoryEntry = function (item: YakpKdbxItem, index: number): void {
+
+    this.history.slice(index, 1);
+  };
+  */
+}
