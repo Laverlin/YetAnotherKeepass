@@ -42,6 +42,10 @@ export class YakpKdbxItem {
     item.isRecycled = checkIfRecycled(kdbxItem, database.meta.recycleBinUuid);
     item.groupSortOrder = kdbxItem.parentGroup?.groups.findIndex((i) => i.uuid.equals(kdbxItem.uuid)) || 0;
 
+    if (kdbxItem instanceof KdbxEntry) {
+      kdbxItem.history.forEach((i) => item.history.push(YakpKdbxItem.fromKdbx(i, database)));
+    }
+
     return item;
   }
 

@@ -4,7 +4,7 @@ import { allItemsGroupSid } from 'main/entity/YakpKdbxItem';
 import { FC } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { selectItemSelector, yakpCustomIconSelector, yakpKdbxItemAtom } from 'renderer/state/atom';
-import DatePicker from '@mui/lab/DateTimePicker';
+import { DatePicker } from '@mui/lab';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { historyAtom } from 'renderer/state/historyAtom';
 import { DefaultKeeIcon } from 'renderer/entity/DefaultKeeIcon';
@@ -21,6 +21,9 @@ import { ProtectedValue } from 'kdbxweb';
 import DateFnsUtils from '@date-io/date-fns';
 import { SvgPath } from '../common/SvgPath';
 import { PropertyInput } from './PropertyInput';
+import { AttachInput } from './AttachInput';
+import { DetailToolbar } from './DetailToolbar';
+import { ItemInfoCard } from './ItemInfoCard';
 
 class FieldInfo {
   sortOrder: number = 0;
@@ -134,16 +137,22 @@ export const DetailItemPanel: FC = () => {
   // handlers
   //
   const handleTitleChange = (inputValue: string) => {
-    setEntryState({ ...entry, title: inputValue });
+    const cloned = ItemHelper.clone(entry);
+    cloned.title = inputValue;
+    setEntryState(cloned);
   };
 
   const handleTagsChange = (values: (string[] | string)[]) => {
-    setEntryState({ ...entry, tags: values as string[] });
+    const cloned = ItemHelper.clone(entry);
+    cloned.tags = values as string[];
+    setEntryState(cloned);
   };
 
   const handleDateChange = (date: Date | null | undefined) => {
-    if (date) setEntryState({ ...entry, isExpires: true, expiryTime: date });
-    else setEntryState({ ...entry, isExpires: false, expiryTime: undefined });
+    const cloned = ItemHelper.clone(entry);
+    cloned.isExpires = !!date;
+    cloned.expiryTime = date || undefined;
+    setEntryState(cloned);
   };
 
   // helpers
@@ -246,8 +255,10 @@ export const DetailItemPanel: FC = () => {
           <div>
             <LocalizationProvider dateAdapter={DateFnsUtils}>
               <DatePicker
-                renderInput={(props) => <TextField {...props} />}
-                inputFormat="dd-MM-YYY"
+                renderInput={(props) => <TextField {...props} style={{ width: 155 }} />}
+                clearable
+                mask="__-__-____"
+                inputFormat="dd-MM-yyyy"
                 label={entryView.isExpires ? 'Expire Date' : 'No Expiration'}
                 value={entryView.isExpires ? entryView.expiryTime : null}
                 InputAdornmentProps={{ position: 'end' }}
@@ -256,21 +267,16 @@ export const DetailItemPanel: FC = () => {
               />
             </LocalizationProvider>
           </div>
-          {/*
-          {!entry.isGroup &&
-            <AttachInput entry = {entryView} disabled = {historyState.isInHistory} />
-          }
-        */}
+          {!entry.isGroup && <AttachInput entry={entryView} disabled={historyState.isInHistory} />}
         </FieldMix>
-        <FieldInput>{/* <ItemInfoCard entry = {entryView} /> */}</FieldInput>
+        <FieldInput>
+          <ItemInfoCard entry={entryView} />
+        </FieldInput>
       </EntryItems>
 
+      {!entry.isGroup && <DetailToolbar entry={entry} />}
+
       {/*
-        {!entry.isGroup &&
-          <ItemToolbar entry = {entry} />
-        }
-
-
         <CustomPropertyMenu entry = {entry} />
         <CustomPropertyPanel entry = {entry} />
         <IconSelectPanel entry = {entry} />

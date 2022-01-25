@@ -31,6 +31,10 @@ YakpKdbxItem.prototype.removeHistoryEntry = function (this: YakpKdbxItem, index:
   this.history.slice(index, 1);
 };
 
+type FilterFlags<Base, Condition> = {
+  [Key in keyof Base]: Base[Key] extends Condition ? Key : never;
+};
+
 export class ItemHelper {
   static isExpired(item: YakpKdbxItem) {
     return item.isExpires && (item.expiryTime?.valueOf() || 0) < Date.now();
@@ -38,6 +42,16 @@ export class ItemHelper {
 
   static stripProtected(fieldValue: ProtectedValue | string) {
     return fieldValue instanceof ProtectedValue ? fieldValue.getText() : fieldValue.toString();
+  }
+
+  static setField(item: YakpKdbxItem, field: string, value: string | ProtectedValue) {
+    const cloned = this.clone(item);
+    cloned.fields[field] = value;
+    return cloned;
+  }
+
+  static clone(item: YakpKdbxItem): YakpKdbxItem {
+    return { ...item, isChanged: true, fields: { ...item.fields } };
   }
   /*
   static removeHistoryEntry = function (item: YakpKdbxItem, index: number): void {

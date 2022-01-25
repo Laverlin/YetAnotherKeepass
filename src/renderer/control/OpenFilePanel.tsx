@@ -155,6 +155,15 @@ export const OpenFilePanel: FC = () => {
           : `${readKdbxResult.yakpError.errorId}: ${readKdbxResult.yakpError.message}`;
       setError(errorMsg);
     } else {
+      readKdbxResult.yakpKdbxItems.forEach((item) =>
+        Object.keys(item.fields).forEach((f) => {
+          const field = item.fields[f] as ProtectedValue;
+          if (!!field.salt && !!field.value) {
+            item.fields[f] = new ProtectedValue(field.value, field.salt);
+          }
+        })
+      );
+
       updateRecentFiles(readKdbxResult.yakpMetadata.kdbxFile);
       setMetadata(readKdbxResult.yakpMetadata);
       setItems(readKdbxResult.yakpKdbxItems);

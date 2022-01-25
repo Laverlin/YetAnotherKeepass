@@ -1,12 +1,12 @@
 import { IconButton, InputAdornment, styled, TextField } from '@mui/material';
 import { ProtectedValue } from 'kdbxweb';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
-import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { FC, useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { yakpKdbxItemAtom } from 'renderer/state/atom';
-import { customPropertyMenuAtom, notificationAtom, openPanel, passwordPanelAtom } from 'renderer/state/panelStateAtom';
+import { ItemHelper } from '../../../main/entity/YakpKbdxItemExtention';
+import { YakpKdbxItem } from '../../../main/entity/YakpKdbxItem';
+import { SystemIcon } from '../../entity/SystemIcon';
+import { yakpKdbxItemAtom } from '../../state/atom';
+import { customPropertyMenuAtom, notificationAtom, openPanel, passwordPanelAtom } from '../../state/panelStateAtom';
 import { SvgPath } from '../common/SvgPath';
 
 const FieldInput = styled('div')(({ theme }) => ({
@@ -67,9 +67,7 @@ export const PropertyInput: FC<IProp> = ({
   //
   const handlePropertyChande = (field: string, value: string) => {
     const fieldValue = isProtected ? ProtectedValue.fromString(value) : value;
-    const newEntry = { ...entry };
-    newEntry.fields[field] = fieldValue;
-    setEntryState(newEntry);
+    setEntryState(ItemHelper.setField(entry, field, fieldValue));
   };
 
   const handleCopy = (e: React.MouseEvent, field: string) => {
