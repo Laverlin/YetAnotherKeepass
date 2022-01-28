@@ -3,6 +3,7 @@ import { styled } from '@mui/material';
 import { FC } from 'react';
 import { consts } from '../entity/consts';
 import { AppToolbar } from './appToolbar/AppToolbar';
+import { NotificationPanel } from './NotificationPanel';
 
 const TopBar = styled('div')(() => ({
   position: 'absolute',
@@ -29,6 +30,7 @@ export const MainFrame: FC = ({ children }) => {
         <AppToolbar />
       </TopBar>
       <MainContent>{children}</MainContent>
+      <NotificationPanel />
     </>
   );
 };
