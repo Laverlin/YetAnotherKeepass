@@ -2,6 +2,7 @@ import { styled, Typography } from '@mui/material';
 import { FC } from 'react';
 import { useRecoilValue } from 'recoil';
 import { filteredIdsSelector } from 'renderer/state/FilterAtom';
+import { EntryContextMenu } from './EntryContextMenu';
 import { EntryItem } from './EntryItem';
 
 const divOverlayY = styled('div')`
@@ -44,7 +45,7 @@ export const EntryListPanel: FC = () => {
           <EntryItem key={entrySid} entrySid={entrySid} />
         ))}
       </EntryList>
-      {/* <EntryContextMenu /> */}
+      <EntryContextMenu />
     </>
   );
 };

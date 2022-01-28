@@ -3,10 +3,11 @@ import { ProtectedValue } from 'kdbxweb';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import React, { FC } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { DefaultKeeIcon } from 'renderer/entity/DefaultKeeIcon';
-import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { selectItemSelector, yakpCustomIconSelector, yakpKdbxItemAtom } from 'renderer/state/atom';
-import { notificationAtom } from 'renderer/state/panelStateAtom';
+import { DefaultKeeIcon } from '../../entity/DefaultKeeIcon';
+import { displayFieldName } from '../../entity/DisplayFieldName';
+import { SystemIcon } from '../../entity/SystemIcon';
+import { selectItemSelector, yakpCustomIconSelector, yakpKdbxItemAtom } from '../../state/atom';
+import { entryContextMenuAtom, notificationAtom, openItemContextMenu } from '../../state/panelStateAtom';
 import { LightTooltip } from '../common/LightToolTip';
 import { SvgPath } from '../common/SvgPath';
 
@@ -155,7 +156,7 @@ interface IProps {
 
 export const EntryItemRaw: FC<IProps> = ({ entrySid }) => {
   const setSelection = useSetRecoilState(selectItemSelector);
-  //  const setContextMenuState = useSetRecoilState(entryContextMenuAtom);
+  const setContextMenuState = useSetRecoilState(entryContextMenuAtom);
   const setNotification = useSetRecoilState(notificationAtom);
   const entry = useRecoilValue(yakpKdbxItemAtom(entrySid));
   const customIcon = useRecoilValue(yakpCustomIconSelector(entry.customIconSid || ''));
@@ -165,7 +166,7 @@ export const EntryItemRaw: FC<IProps> = ({ entrySid }) => {
     const normalizedValue = value instanceof ProtectedValue ? value.getText() : value;
     if (normalizedValue) {
       navigator.clipboard.writeText(normalizedValue);
-      setNotification(`${fieldName} is copied`);
+      setNotification(`${displayFieldName(fieldName)} is copied`);
     } else {
       setNotification(`Nothing to copy`);
     }
@@ -231,7 +232,7 @@ export const EntryItemRaw: FC<IProps> = ({ entrySid }) => {
 
         <AtachIcon>{!entry.isGroup && entry.binaries.length > 0 && <SvgPath path={SystemIcon.attachFile} />}</AtachIcon>
         <ContextMenuButton id="contextMenuButton">
-          <ContextMenuIcon>
+          <ContextMenuIcon onClick={(e) => setContextMenuState(openItemContextMenu(e.currentTarget, entry))}>
             <SvgPath path={SystemIcon.dot_hamburger} />
           </ContextMenuIcon>
         </ContextMenuButton>
