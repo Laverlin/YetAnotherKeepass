@@ -1,8 +1,8 @@
 import { IconButton, InputAdornment, styled, TextField } from '@mui/material';
 import { ProtectedValue } from 'kdbxweb';
+import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
 import { FC, useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { ItemHelper } from '../../../main/entity/YakpKbdxItemExtention';
 import { YakpKdbxItem } from '../../../main/entity/YakpKdbxItem';
 import { SystemIcon } from '../../entity/SystemIcon';
 import { yakpKdbxItemAtom } from '../../state/atom';
@@ -72,7 +72,7 @@ export const PropertyInput: FC<IProp> = ({
 
   const handleCopy = (e: React.MouseEvent, field: string) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(ItemHelper.stripProtected(entry.fields[field]));
+    navigator.clipboard.writeText(ItemHelper.stripProtection(entry.fields[field]));
     setNotification(`${field} is copied`);
   };
 

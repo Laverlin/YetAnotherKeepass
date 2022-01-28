@@ -1,6 +1,8 @@
+/* eslint-disable no-return-assign */
 import { Chip, IconButton, styled, Tooltip, Typography } from '@mui/material';
 import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
+import { IpcMainAddAttechments } from 'main/IpcCommunication/IpcExtention';
 import { FC } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
@@ -13,7 +15,6 @@ const Outlined = styled('div', {
   width: '100%',
   display: 'flex',
   marginLeft: theme.spacing(1),
-  // marginRight: theme.spacing(2),
   position: 'relative',
   minWidth: 0,
   overflowY: 'visible',
@@ -73,44 +74,17 @@ interface IProps {
 export const AttachInput: FC<IProps> = ({ entry, disabled }) => {
   const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
 
-  const handleAddAttachment = () => {
-    /*
-    const files = remote.dialog.showOpenDialogSync({properties: ['openFile']});
-    if (!files){
-      return
-    }
-
-    files.forEach(file => {
-      const buffer = fs.readFileSync(file);
-      const binary: KdbxBinary = new Uint8Array(buffer).buffer;
-      setEntryState(entry.addAttachment(path.basename(file), binary));
-    });
-    */
+  const handleAddAttachment = async () => {
+    const attachments = await IpcMainAddAttechments(entry.sid);
+    if (attachments) setEntryState(ItemHelper.apply(entry, (e) => (e.binaries = e.binaries.concat(attachments))));
   };
 
   const handleDeleteAttachment = (key: string) => {
-    const cloned = ItemHelper.clone(entry);
-    cloned.binaries = cloned.binaries.filter((f) => f !== key);
-    setEntryState(cloned);
+    setEntryState(ItemHelper.apply(entry, (e) => (e.binaries = e.binaries.filter((f) => f !== key))));
   };
 
-  const handleSaveAttachment = (key: string) => {
-    /*
-    const filePath = remote.dialog.showSaveDialogSync({defaultPath: key});
-    if (!filePath){
-      return
-    }
-    let buffer = entry.binaries.get(key);
-    if (!buffer) {
-      return
-    }
-
-    buffer = (buffer as KdbxBinaryWithHash).value
-      ? (buffer as KdbxBinaryWithHash).value
-      : buffer as KdbxBinary;
-    const data = buffer instanceof ProtectedValue ? buffer.getBinary() : buffer;
-    fs.writeFileSync(filePath, new Uint8Array(data));
-    */
+  const handleSaveAttachment = async (key: string) => {
+    window.electron.ipcRenderer.saveAttachment(entry.sid, key);
   };
 
   return (

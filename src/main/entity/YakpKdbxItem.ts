@@ -11,6 +11,19 @@ const checkIfRecycled = (kdbxItem: KdbxEntry | KdbxGroup, recycleBinUuid: KdbxUu
 };
 
 export class YakpKdbxItem {
+  static fromSerialized(serializedItem: YakpKdbxItem) {
+    let item = new YakpKdbxItem();
+    item = Object.assign(item, serializedItem);
+    Object.keys(serializedItem.fields).forEach((f) => {
+      const field = item.fields[f] as ProtectedValue;
+      item.fields[f] =
+        !!field.salt && !!field.value ? new ProtectedValue(field.value, field.salt) : serializedItem.fields[f];
+    });
+    item.history = [...serializedItem.history];
+    item.binaries = [...serializedItem.binaries];
+    return item;
+  }
+
   static fromKdbx(kdbxItem: KdbxEntry | KdbxGroup, database: Kdbx) {
     const item = new YakpKdbxItem();
     item.sid = kdbxItem.uuid.id;

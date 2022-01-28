@@ -1,4 +1,7 @@
+/* eslint-disable no-return-assign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import { CustomIcon } from 'main/entity/CustomIcon';
+import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
 import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { YakpMetadata } from 'main/entity/YakpMetadata';
 import { atom, atomFamily, DefaultValue, selector, selectorFamily } from 'recoil';
@@ -20,7 +23,7 @@ export const yakpKdbxItemAtom = atomFamily<YakpKdbxItem, string>({
 });
 
 export const allItemSelector = selector<YakpKdbxItem[]>({
-  key: 'ItemListSelector',
+  key: 'allItemSelector',
   get: ({ get }) => get(yakpKdbxItemAtomIds).map((i) => get(yakpKdbxItemAtom(i))),
   set: ({ get, set, reset }, items) => {
     if (items instanceof DefaultValue) return;
@@ -103,45 +106,43 @@ export const selectItemSelector = selector<string | undefined>({
   set: ({ get, set }, selectedSid) => {
     if (!selectedSid || selectedSid instanceof DefaultValue) return;
 
-    const selectedItem = get(yakpKdbxItemAtom(selectedSid));
+    const dropSelection = (i: YakpKdbxItem) => {
+      const cloned = ItemHelper.clone(i);
+      cloned.isSelected = false;
+      return cloned;
+    };
+
+    const selectedItem = ItemHelper.clone(get(yakpKdbxItemAtom(selectedSid)));
     if (selectedItem.isGroup && !selectedItem.isRecycled) {
       set(selectEntryAtom, (curEntId) => {
-        curEntId &&
-          set(yakpKdbxItemAtom(curEntId), (entry) => {
-            return { ...entry, isSelected: false };
-          });
+        curEntId && set(yakpKdbxItemAtom(curEntId), dropSelection);
         return undefined;
       });
       set(selectGroupAtom, (curGrpId) => {
-        curGrpId &&
-          set(yakpKdbxItemAtom(curGrpId), (group) => {
-            return { ...group, isSelected: false };
-          });
+        curGrpId && set(yakpKdbxItemAtom(curGrpId), dropSelection);
         return selectedSid;
       });
     } else {
       set(selectEntryAtom, (curEntId) => {
-        curEntId &&
-          set(yakpKdbxItemAtom(curEntId), (entry) => {
-            return { ...entry, isSelected: false };
-          });
+        curEntId && set(yakpKdbxItemAtom(curEntId), dropSelection);
         return selectedSid;
       });
     }
 
-    set(yakpKdbxItemAtom(selectedSid), { ...selectedItem, isSelected: true });
+    selectedItem.isSelected = true;
+    set(yakpKdbxItemAtom(selectedSid), selectedItem);
   },
 });
 
-export const yakpCustomIconsAtom = atom<[string, string][]>({
+export const yakpCustomIconsAtom = atom<CustomIcon[]>({
   key: 'yakpCustomIconsAtom',
   default: [],
 });
 
-export const yakpCustomIconSelector = selectorFamily<string | undefined, string>({
+export const yakpCustomIconSelector = selectorFamily<CustomIcon | undefined, string>({
   key: 'yakpCustomIconSelector',
   get:
     (sid) =>
     ({ get }) =>
-      get(yakpCustomIconsAtom).find((i) => i[0] === sid)?.[1],
+      get(yakpCustomIconsAtom).find((i) => i.key === sid),
 });

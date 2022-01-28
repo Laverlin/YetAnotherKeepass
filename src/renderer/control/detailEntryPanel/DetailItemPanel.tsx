@@ -1,8 +1,9 @@
+/* eslint-disable no-return-assign */
 /* eslint-disable react/jsx-props-no-spreading */
 import { Autocomplete, Chip, IconButton, Input, styled, TextField, Tooltip, Typography } from '@mui/material';
 import { allItemsGroupSid } from 'main/entity/YakpKdbxItem';
 import { FC } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilCallback, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { selectItemSelector, yakpCustomIconSelector, yakpKdbxItemAtom } from 'renderer/state/atom';
 import { DatePicker } from '@mui/lab';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -16,7 +17,6 @@ import {
   openPanel,
 } from 'renderer/state/panelStateAtom';
 import { allTagSelector } from 'renderer/state/FilterAtom';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
 import { ProtectedValue } from 'kdbxweb';
 import DateFnsUtils from '@date-io/date-fns';
 import { SvgPath } from '../common/SvgPath';
@@ -24,6 +24,12 @@ import { PropertyInput } from './PropertyInput';
 import { AttachInput } from './AttachInput';
 import { DetailToolbar } from './DetailToolbar';
 import { ItemInfoCard } from './ItemInfoCard';
+import { CustomPropertyMenu } from './CustomPropertyMenu';
+import { CustomPropertyPanel } from './CustomPropertyPanel';
+import { ColorSelectPanel } from './ColorSelectPanel';
+import { IconSelectPanel } from './IconSelectPanel';
+import { PasswordGeneratorPanel } from './PasswordGeneratorPanel';
+import { ItemHelper } from '../../../main/entity/YakpKbdxItemExtention';
 
 class FieldInfo {
   sortOrder: number = 0;
@@ -55,6 +61,7 @@ const TitleIconButton = styled(IconButton)(({ theme }) => ({
   width: theme.spacing(8),
   height: theme.spacing(8),
   marginLeft: theme.spacing(2),
+  marginRight: theme.spacing(1 / 2),
 }));
 
 const TitleImgIcon = styled('img')(({ theme }) => ({
@@ -96,7 +103,7 @@ const EntryItems = styled(divOverlayY)(({ theme }) => ({
   top: theme.spacing(10),
   left: 0,
   right: 0,
-  bottom: theme.spacing(10),
+  bottom: theme.spacing(8),
   padding: theme.spacing(2),
   paddingRight: theme.spacing(1),
 }));
@@ -113,17 +120,15 @@ const FieldMix = styled('div')(({ theme }) => ({
   width: '100%',
 }));
 
-const TagChip = styled(Chip)(() => ({
-  margin: '2px',
-  maxWidth: '100px',
-}));
-
 export const DetailItemPanel: FC = () => {
   // Global state
   //
   const entrySid = useRecoilValue(selectItemSelector) || allItemsGroupSid;
   const [entry, setEntryState] = useRecoilState(yakpKdbxItemAtom(entrySid));
-  const customIcon = useRecoilValue(yakpCustomIconSelector(entry.customIconSid || ''));
+  // const customIcon = useRecoilValue(yakpCustomIconSelector(entry.customIconSid || ''));
+  const customIcon = useRecoilCallback(({ snapshot }) => (iconSid: string) => {
+    return snapshot.getLoadable(yakpCustomIconSelector(iconSid)).valueMaybe();
+  });
   const historyState = useRecoilValue(historyAtom(entrySid));
   const setCustomPropPanel = useSetRecoilState(customPropertyPanelAtom);
   const setIconPanel = useSetRecoilState(iconChoisePanelAtom);
@@ -137,22 +142,20 @@ export const DetailItemPanel: FC = () => {
   // handlers
   //
   const handleTitleChange = (inputValue: string) => {
-    const cloned = ItemHelper.clone(entry);
-    cloned.title = inputValue;
-    setEntryState(cloned);
+    setEntryState(ItemHelper.apply(entry, (e) => (e.title = inputValue)));
   };
 
   const handleTagsChange = (values: (string[] | string)[]) => {
-    const cloned = ItemHelper.clone(entry);
-    cloned.tags = values as string[];
-    setEntryState(cloned);
+    setEntryState(ItemHelper.apply(entry, (e) => (e.tags = values as string[])));
   };
 
   const handleDateChange = (date: Date | null | undefined) => {
-    const cloned = ItemHelper.clone(entry);
-    cloned.isExpires = !!date;
-    cloned.expiryTime = date || undefined;
-    setEntryState(cloned);
+    setEntryState(
+      ItemHelper.apply(entry, (e) => {
+        e.isExpires = !!date;
+        e.expiryTime = date || undefined;
+      })
+    );
   };
 
   // helpers
@@ -165,14 +168,16 @@ export const DetailItemPanel: FC = () => {
     ['Notes', { sortOrder: 100, isMultiline: true } as FieldInfo],
   ]);
 
-  const entryView = entry;
+  const entryView = historyState.isInHistory
+    ? entry.history[historyState.historyIndex] // YakpKdbxItem.fromSerialized({ ...entry.history[historyState.historyIndex] })
+    : entry;
 
   return (
     <form noValidate autoComplete="off">
       <ItemTitle>
         <TitleIconButton onClick={(e) => setIconPanel(openPanel(e.currentTarget))} disabled={historyState.isInHistory}>
           {entryView.customIconSid ? (
-            <TitleImgIcon src={customIcon} />
+            <TitleImgIcon src={customIcon(entryView.customIconSid)?.b64image} />
           ) : (
             <TitleSvgIcon path={DefaultKeeIcon.get(entryView.defaultIconId)} />
           )}
@@ -212,7 +217,7 @@ export const DetailItemPanel: FC = () => {
               <PropertyInput
                 entry={entryView}
                 fieldId={field.name}
-                inputValue={ItemHelper.stripProtected(field.value)}
+                inputValue={ItemHelper.stripProtection(entry.fields[field.name])}
                 isProtected={(field.isProtected as boolean) || field.value instanceof ProtectedValue}
                 isMultiline={field.isMultiline as boolean}
                 isCustomProperty={field.sortOrder === 0}
@@ -242,9 +247,9 @@ export const DetailItemPanel: FC = () => {
             size="small"
             disabled={historyState.isInHistory}
             fullWidth
-            renderTags={(value: string[], getTagProps) =>
-              value.map((val: string, index: number) => (
-                <TagChip {...getTagProps({ index })} size="small" variant="outlined" label={val} key={val} />
+            renderTags={(value: readonly string[], getTagProps) =>
+              value.map((option: string, index: number) => (
+                <Chip variant="outlined" size="small" label={option} {...getTagProps({ index })} />
               ))
             }
             renderInput={(params) => <TextField {...params} fullWidth variant="outlined" label="Tags" />}
@@ -276,13 +281,11 @@ export const DetailItemPanel: FC = () => {
 
       {!entry.isGroup && <DetailToolbar entry={entry} />}
 
-      {/*
-        <CustomPropertyMenu entry = {entry} />
-        <CustomPropertyPanel entry = {entry} />
-        <IconSelectPanel entry = {entry} />
-        <ColorSelectPanel entry = {entry} />
-        <PasswordGeneratorPanel entry = {entry} />
-        */}
+      <CustomPropertyMenu entry={entry} />
+      <CustomPropertyPanel entry={entry} />
+      <ColorSelectPanel entry={entry} />
+      <IconSelectPanel entry={entry} />
+      <PasswordGeneratorPanel entry={entry} />
     </form>
   );
 };

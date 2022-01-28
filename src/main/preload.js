@@ -29,6 +29,21 @@ contextBridge.exposeInMainWorld('electron', {
     systemCommand(command) {
       ipcRenderer.send(IpcChannels.systemCommand, command);
     },
+    getCustomIcon() {
+      ipcRenderer.send(IpcChannels.customIcon);
+    },
+    onCustomIcon(func) {
+      ipcRenderer.once(IpcChannels.customIcon, (event, ...args) => func(...args));
+    },
+    addAttachments(entrySid) {
+      ipcRenderer.send(IpcChannels.attachemnt, entrySid);
+    },
+    onAddAttachments(func) {
+      ipcRenderer.once(IpcChannels.attachemnt, (event, ...args) => func(...args));
+    },
+    saveAttachment(entrySid, key) {
+      ipcRenderer.send(IpcChannels.attachemnt, entrySid, key);
+    },
 
     myPing() {
       ipcRenderer.send('ipc-example', 'ping');

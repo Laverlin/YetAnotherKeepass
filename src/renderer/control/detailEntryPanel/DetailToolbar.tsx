@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { IconButton, styled, Tooltip, Typography } from '@mui/material';
+import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { FC, useEffect } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -19,6 +20,7 @@ const BottomBar = styled('div')(({ theme }) => ({
   padding: theme.spacing(1),
   alignItems: 'center',
   justifyContent: 'center',
+  boxShadow: '0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%)',
 }));
 
 const BottomIcon = styled(SvgPath)(({ theme }) => ({
@@ -55,7 +57,7 @@ export const DetailToolbar: FC<IProps> = ({ entry }) => {
 
   useEffect(() => {
     setHistoryState({ historyIndex: totalVersions, isInHistory: false });
-  }, [entry.sid, totalVersions]);
+  }, [entry.sid /* , totalVersions */]);
 
   const handleIndexChanged = (newIndex: number) => {
     if (newIndex < 0 || newIndex > totalVersions) return;
@@ -65,7 +67,7 @@ export const DetailToolbar: FC<IProps> = ({ entry }) => {
 
   const handleDeleteVersion = (index: number) => {
     if (index === totalVersions - 1) setHistoryState({ isInHistory: false, historyIndex: index });
-    // setEntryState(entry.removeHistoryEntry(index));
+    setEntryState(ItemHelper.apply(entry, (e) => e.history.splice(index, 1)));
   };
 
   const modifiedTime = new Date(
