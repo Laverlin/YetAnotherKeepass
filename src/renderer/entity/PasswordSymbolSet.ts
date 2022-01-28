@@ -1,5 +1,4 @@
-import { PasswordGenerationOptions } from './PasswordGenerationOptions';
-import { KeysOfType } from './PasswordGenerator';
+import { KeysOfType, PasswordGenerationOptions } from './PasswordGenerationOptions';
 
 /** Class to describe set of source symbols
  *  for password generation

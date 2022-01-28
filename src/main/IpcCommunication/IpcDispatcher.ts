@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import fs from 'fs';
-import { BrowserWindow, dialog, ipcMain, IpcMainEvent } from 'electron';
+import { BrowserWindow, dialog, ipcMain, IpcMainEvent, shell } from 'electron';
 import { Credentials, CryptoEngine, Kdbx, KdbxBinary, KdbxBinaryWithHash, KdbxError, ProtectedValue } from 'kdbxweb';
 import path from 'path';
 import { YakpKdbxItem } from '../entity/YakpKdbxItem';
@@ -14,7 +14,7 @@ import { IpcChannels } from './IpcChannels';
 import { YakpMetadata } from '../entity/YakpMetadata';
 import { CustomIcon } from '../entity/CustomIcon';
 
-export type SystemCommand = 'minimize' | 'maximize' | 'restore' | 'exit';
+export type SystemCommand = 'minimize' | 'maximize' | 'restore' | 'exit' | 'openUrl';
 
 export class IpcDispatcher {
   private yaKeepassSetting: YaKeepassSetting;
@@ -36,14 +36,16 @@ export class IpcDispatcher {
     ipcMain.on(IpcChannels.readKdbx, (event, kdbxFilePath: string, value: Uint8Array, salt: Uint8Array) =>
       this.onReadKdbx(event, kdbxFilePath, value, salt)
     );
-    ipcMain.on(IpcChannels.systemCommand, (_, command: SystemCommand) => this.onSystemCommand(command));
+    ipcMain.on(IpcChannels.systemCommand, (_, command: SystemCommand, param?: string) =>
+      this.onSystemCommand(command, param)
+    );
     ipcMain.on(IpcChannels.customIcon, this.handleCustomIcon);
     ipcMain.on(IpcChannels.attachemnt, (event, entrySid: string, key?: string) =>
       this.handleAttachment(event, entrySid, key)
     );
   }
 
-  async onSystemCommand(command: SystemCommand) {
+  async onSystemCommand(command: SystemCommand, param?: string) {
     switch (command) {
       case 'exit':
         BrowserWindow.getFocusedWindow()?.close();
@@ -56,6 +58,10 @@ export class IpcDispatcher {
         break;
       case 'restore':
         BrowserWindow.getFocusedWindow()?.restore();
+        break;
+      case 'openUrl':
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        param && shell.openExternal(param);
         break;
       default:
         throw Error('unknown command');

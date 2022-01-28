@@ -117,11 +117,9 @@ export const IconSelectPanel: FC<IProps> = ({ entry }) => {
           if (ih.customIconSid === iconSid) {
             const cloned = { ...ih };
             cloned.customIconSid = undefined;
-            console.log(cloned);
             const hc = [...i.history];
             const index = hc.findIndex((hci) => hci.customIconSid === iconSid);
             hc.splice(index, 1, cloned);
-            console.log(hc);
             set(
               yakpKdbxItemAtom(i.sid),
               ItemHelper.apply(i, (e) => (e.history = hc))

@@ -46,7 +46,7 @@ export class YakpKdbxItem {
     item.hasPassword = kdbxItem instanceof KdbxEntry && !!kdbxItem.fields.get('Password');
     if (!item.isGroup) {
       (kdbxItem as KdbxEntry).fields.forEach((value, key) => {
-        item.fields[key] = value;
+        if (key !== 'Title') item.fields[key] = value;
       });
     } else {
       item.fields.Notes = (kdbxItem as KdbxGroup).notes || '';

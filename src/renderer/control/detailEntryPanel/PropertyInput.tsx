@@ -3,6 +3,7 @@ import { ProtectedValue } from 'kdbxweb';
 import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
 import { FC, useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
+import { displayFieldName } from 'renderer/entity/DisplayFieldName';
 import { YakpKdbxItem } from '../../../main/entity/YakpKdbxItem';
 import { SystemIcon } from '../../entity/SystemIcon';
 import { yakpKdbxItemAtom } from '../../state/atom';
@@ -73,13 +74,12 @@ export const PropertyInput: FC<IProp> = ({
   const handleCopy = (e: React.MouseEvent, field: string) => {
     e.stopPropagation();
     navigator.clipboard.writeText(ItemHelper.stripProtection(entry.fields[field]));
-    setNotification(`${field} is copied`);
+    setNotification(`${displayFieldName(field)} is copied`);
   };
 
   const handleGoUrl = (e: React.MouseEvent, url: string) => {
     e.stopPropagation();
-    console.log(url);
-    // shell.openExternal(url);
+    window.electron.ipcRenderer.systemCommand('openUrl', url);
   };
 
   // helpers
@@ -139,7 +139,7 @@ export const PropertyInput: FC<IProp> = ({
         fullWidth
         multiline={isMultiline}
         type={isShowText ? 'text' : 'password'}
-        label={fieldId}
+        label={displayFieldName(fieldId)}
         variant="outlined"
         value={inputValue}
         onChange={(e) => handlePropertyChande(fieldId, e.target.value)}

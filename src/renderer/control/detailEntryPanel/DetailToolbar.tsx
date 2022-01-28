@@ -32,6 +32,7 @@ const BottomIcon = styled(SvgPath)(({ theme }) => ({
 const VersionContent = styled('div')(() => ({
   display: 'flex',
   flexDirection: 'column',
+  userSelect: 'none',
 }));
 
 const DeleteButton = styled('span')(() => ({

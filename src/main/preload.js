@@ -26,8 +26,8 @@ contextBridge.exposeInMainWorld('electron', {
     onReadKdbx(func) {
       ipcRenderer.once(IpcChannels.readKdbx, (event, ...args) => func(...args));
     },
-    systemCommand(command) {
-      ipcRenderer.send(IpcChannels.systemCommand, command);
+    systemCommand(command, param) {
+      ipcRenderer.send(IpcChannels.systemCommand, command, param);
     },
     getCustomIcon() {
       ipcRenderer.send(IpcChannels.customIcon);

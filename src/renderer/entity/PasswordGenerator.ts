@@ -1,11 +1,6 @@
 import { PasswordGenerationOptions } from './PasswordGenerationOptions';
 import { PasswordSymbolSet } from './PasswordSymbolSet';
 
-/** Wrapper to limit keyof type options to fields of specified type
- *  E.g. KeysOfType<T, boolean> will return only boolean fields of T
- */
-export type KeysOfType<T, U> = { [k in keyof T]: T[k] extends U ? k : never }[keyof T];
-
 /** Class for holding generation password methods
  */
 export class PasswordGenerator {

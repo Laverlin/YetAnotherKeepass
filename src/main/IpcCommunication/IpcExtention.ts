@@ -14,7 +14,7 @@ export interface Electron {
 }
 
 export interface IpcRenderer {
-  systemCommand(command: SystemCommand): void;
+  systemCommand(command: SystemCommand, param?: string): void;
   openFileDialog(): void;
   onFileOpen(func: (fileName: string) => void): void;
   saveSetting(renderSetting: RenderSetting): void;

@@ -188,7 +188,7 @@ export const DetailItemPanel: FC = () => {
           fullWidth
           placeholder="Title"
           disableUnderline={!!entryView.title}
-          onChange={(e: any) => handleTitleChange(e.target.value)}
+          onChange={(e) => handleTitleChange(e.target.value)}
           disabled={historyState.isInHistory}
         />
         {!entry.isGroup && (
