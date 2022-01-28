@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import fs from 'fs';
-import { BrowserWindow, dialog, ipcMain, IpcMainEvent } from 'electron';
-import { Credentials, CryptoEngine, Kdbx, KdbxError, ProtectedValue } from 'kdbxweb';
+import { BrowserWindow, dialog, ipcMain, IpcMainEvent, shell } from 'electron';
+import { Credentials, CryptoEngine, Kdbx, KdbxBinary, KdbxBinaryWithHash, KdbxError, ProtectedValue } from 'kdbxweb';
+import path from 'path';
 import { YakpKdbxItem } from '../entity/YakpKdbxItem';
 import { RenderSetting } from '../entity/RenderSetting';
 import { ReadKdbxResult } from '../entity/ReadKdbxResult';
@@ -11,16 +12,14 @@ import { Setting } from '../entity/Setting';
 import { YaKeepassSetting } from '../entity/YaKeepassSetting';
 import { IpcChannels } from './IpcChannels';
 import { YakpMetadata } from '../entity/YakpMetadata';
+import { CustomIcon } from '../entity/CustomIcon';
 
-const image2Base64 = (image: Buffer | ArrayBuffer) => {
-  const data = image instanceof Buffer ? image : Buffer.from(image);
-  return `data:image;base64,${data.toString('base64')}`;
-};
-
-export type SystemCommand = 'minimize' | 'maximize' | 'restore' | 'exit';
+export type SystemCommand = 'minimize' | 'maximize' | 'restore' | 'exit' | 'openUrl';
 
 export class IpcDispatcher {
   private yaKeepassSetting: YaKeepassSetting;
+
+  private database: Kdbx | undefined;
 
   constructor(yaKeepassSetting: YaKeepassSetting) {
     this.yaKeepassSetting = yaKeepassSetting;
@@ -37,10 +36,16 @@ export class IpcDispatcher {
     ipcMain.on(IpcChannels.readKdbx, (event, kdbxFilePath: string, value: Uint8Array, salt: Uint8Array) =>
       this.onReadKdbx(event, kdbxFilePath, value, salt)
     );
-    ipcMain.on(IpcChannels.systemCommand, (_, command: SystemCommand) => this.onSystemCommand(command));
+    ipcMain.on(IpcChannels.systemCommand, (_, command: SystemCommand, param?: string) =>
+      this.onSystemCommand(command, param)
+    );
+    ipcMain.on(IpcChannels.customIcon, this.handleCustomIcon);
+    ipcMain.on(IpcChannels.attachemnt, (event, entrySid: string, key?: string) =>
+      this.handleAttachment(event, entrySid, key)
+    );
   }
 
-  async onSystemCommand(command: SystemCommand) {
+  async onSystemCommand(command: SystemCommand, param?: string) {
     switch (command) {
       case 'exit':
         BrowserWindow.getFocusedWindow()?.close();
@@ -54,9 +59,60 @@ export class IpcDispatcher {
       case 'restore':
         BrowserWindow.getFocusedWindow()?.restore();
         break;
+      case 'openUrl':
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        param && shell.openExternal(param);
+        break;
       default:
         throw Error('unknown command');
     }
+  }
+
+  async handleAttachment(event: IpcMainEvent, entrySid: string, key?: string) {
+    if (!key) {
+      const files = dialog.showOpenDialogSync({ properties: ['openFile'] });
+      if (!files) {
+        event.reply(IpcChannels.attachemnt);
+        return;
+      }
+      const attachments: string[] = [];
+      const kdbxEntry = this.database?.getDefaultGroup().entries.find((e) => e.uuid.id === entrySid);
+      if (kdbxEntry) {
+        kdbxEntry.times.update();
+        kdbxEntry.pushHistory();
+        files.forEach((file) => {
+          const buffer = fs.readFileSync(file);
+          const binary: KdbxBinary = new Uint8Array(buffer).buffer;
+          attachments.push(path.basename(file));
+          kdbxEntry.binaries.set(path.basename(file), binary);
+        });
+      }
+      event.reply(IpcChannels.attachemnt, attachments);
+    } else {
+      const filePath = dialog.showSaveDialogSync({ defaultPath: key });
+      if (!filePath) return;
+
+      const kdbxEntry = this.database?.getDefaultGroup().entries.find((e) => e.uuid.id === entrySid);
+      let buffer = kdbxEntry?.binaries.get(key);
+      if (!buffer) return;
+
+      buffer = (buffer as KdbxBinaryWithHash).value ? (buffer as KdbxBinaryWithHash).value : (buffer as KdbxBinary);
+      const data = buffer instanceof ProtectedValue ? buffer.getBinary() : buffer;
+      fs.writeFileSync(filePath, new Uint8Array(data));
+    }
+  }
+
+  async handleCustomIcon(event: IpcMainEvent) {
+    const files = dialog.showOpenDialogSync({
+      properties: ['openFile'],
+      filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'ico'] }],
+    });
+    if (!files || files.length === 0) {
+      event.reply(IpcChannels.customIcon, undefined);
+      return;
+    }
+    const data = fs.readFileSync(files[0]);
+    event.reply(IpcChannels.customIcon, CustomIcon.fromFile(data));
   }
 
   async onOpenFile(event: IpcMainEvent) {
@@ -81,6 +137,7 @@ export class IpcDispatcher {
       const data = await fs.promises.readFile(kdbxFilePath);
       const credentials = new Credentials(password, null);
       const database = await Kdbx.load(new Uint8Array(data).buffer, credentials);
+      this.database = database;
 
       const items = Array.from(database.getDefaultGroup().allGroupsAndEntries()).map((i) =>
         YakpKdbxItem.fromKdbx(i, database)
@@ -90,8 +147,8 @@ export class IpcDispatcher {
         IpcChannels.readKdbx,
         ReadKdbxResult.fromResult(
           items,
-          new YakpMetadata(kdbxFilePath, database.getDefaultGroup().uuid.id, database.meta.recycleBinUuid?.id),
-          Array.from(database.meta.customIcons).map((i) => [i[0], image2Base64(i[1].data)])
+          new YakpMetadata(kdbxFilePath, this.database.getDefaultGroup().uuid.id, database.meta.recycleBinUuid?.id),
+          Array.from(this.database.meta.customIcons).map((i) => CustomIcon.fromKdbxIcon(i[0], i[1]))
         )
       );
     } catch (e) {

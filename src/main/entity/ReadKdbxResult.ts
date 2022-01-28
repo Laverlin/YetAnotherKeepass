@@ -1,3 +1,4 @@
+import { CustomIcon } from './CustomIcon';
 import { YakpError } from './YakpError';
 import { YakpKdbxItem } from './YakpKdbxItem';
 import { YakpMetadata } from './YakpMetadata';
@@ -9,7 +10,7 @@ export class ReadKdbxResult {
 
   yakpError: YakpError | undefined;
 
-  customIcons: [string, string][] = [];
+  customIcons: CustomIcon[] = [];
 
   static fromError(error: YakpError) {
     const result = new ReadKdbxResult();
@@ -17,7 +18,7 @@ export class ReadKdbxResult {
     return result;
   }
 
-  static fromResult(yakpKdbxItems: YakpKdbxItem[], metadata: YakpMetadata, customIcons: [string, string][]) {
+  static fromResult(yakpKdbxItems: YakpKdbxItem[], metadata: YakpMetadata, customIcons: CustomIcon[]) {
     const result = new ReadKdbxResult();
     result.yakpKdbxItems = yakpKdbxItems;
     result.yakpMetadata = metadata;

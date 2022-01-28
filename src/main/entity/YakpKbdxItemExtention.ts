@@ -1,32 +1,28 @@
-/* eslint-disable func-names */
 import { ProtectedValue } from 'kdbxweb';
 import { YakpKdbxItem } from './YakpKdbxItem';
 
-export { YakpKdbxItem } from './YakpKdbxItem';
+export class ItemHelper {
+  static isExpired(item: YakpKdbxItem) {
+    return item.isExpires && (item.expiryTime?.valueOf() || 0) < Date.now();
+  }
 
-declare module './YakpKdbxItem' {
-  export interface YakpKdbxItem {
-    isExpired(): boolean;
+  static stripProtection(fieldValue: ProtectedValue | string) {
+    return fieldValue instanceof ProtectedValue ? fieldValue.getText() : fieldValue;
+  }
 
-    getIcon(): string;
+  static setField(item: YakpKdbxItem, field: string, value: string | ProtectedValue) {
+    // eslint-disable-next-line no-return-assign
+    return this.apply(item, (i) => (i.fields[field] = value));
+  }
 
-    getFieldUnprotected(fieldName: string): string;
+  static clone(item: YakpKdbxItem): YakpKdbxItem {
+    return { ...item, fields: { ...item.fields }, history: [...item.history], binaries: [...item.binaries] };
+  }
 
-    removeHistoryEntry(index: number): void;
+  static apply(item: YakpKdbxItem, func: (item: YakpKdbxItem) => void) {
+    const cloned = this.clone(item);
+    cloned.isChanged = true;
+    func(cloned);
+    return cloned;
   }
 }
-
-/** Check if the item is expired now
- */
-YakpKdbxItem.prototype.isExpired = function (this: YakpKdbxItem): boolean {
-  return this.isExpires && (this.expiryTime?.valueOf() || 0) < Date.now();
-};
-
-YakpKdbxItem.prototype.getFieldUnprotected = function (this: YakpKdbxItem, fieldName: string): string {
-  const field = this.fields[fieldName];
-  return field instanceof ProtectedValue ? field.getText() : field.toString();
-};
-
-YakpKdbxItem.prototype.removeHistoryEntry = function (this: YakpKdbxItem, index: number): void {
-  this.history.slice(index, 1);
-};

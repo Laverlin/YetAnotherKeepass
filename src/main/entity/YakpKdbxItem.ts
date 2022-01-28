@@ -11,6 +11,19 @@ const checkIfRecycled = (kdbxItem: KdbxEntry | KdbxGroup, recycleBinUuid: KdbxUu
 };
 
 export class YakpKdbxItem {
+  static fromSerialized(serializedItem: YakpKdbxItem) {
+    let item = new YakpKdbxItem();
+    item = Object.assign(item, serializedItem);
+    Object.keys(serializedItem.fields).forEach((f) => {
+      const field = item.fields[f] as ProtectedValue;
+      item.fields[f] =
+        !!field.salt && !!field.value ? new ProtectedValue(field.value, field.salt) : serializedItem.fields[f];
+    });
+    item.history = [...serializedItem.history];
+    item.binaries = [...serializedItem.binaries];
+    return item;
+  }
+
   static fromKdbx(kdbxItem: KdbxEntry | KdbxGroup, database: Kdbx) {
     const item = new YakpKdbxItem();
     item.sid = kdbxItem.uuid.id;
@@ -33,7 +46,7 @@ export class YakpKdbxItem {
     item.hasPassword = kdbxItem instanceof KdbxEntry && !!kdbxItem.fields.get('Password');
     if (!item.isGroup) {
       (kdbxItem as KdbxEntry).fields.forEach((value, key) => {
-        item.fields[key] = value;
+        if (key !== 'Title') item.fields[key] = value;
       });
     } else {
       item.fields.Notes = (kdbxItem as KdbxGroup).notes || '';
@@ -41,6 +54,10 @@ export class YakpKdbxItem {
 
     item.isRecycled = checkIfRecycled(kdbxItem, database.meta.recycleBinUuid);
     item.groupSortOrder = kdbxItem.parentGroup?.groups.findIndex((i) => i.uuid.equals(kdbxItem.uuid)) || 0;
+
+    if (kdbxItem instanceof KdbxEntry) {
+      kdbxItem.history.forEach((i) => item.history.push(YakpKdbxItem.fromKdbx(i, database)));
+    }
 
     return item;
   }

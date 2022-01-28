@@ -6,6 +6,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { DefaultKeeIcon } from 'renderer/entity/DefaultKeeIcon';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
 import { selectItemSelector, yakpCustomIconSelector, yakpKdbxItemAtom } from 'renderer/state/atom';
+import { notificationAtom } from 'renderer/state/panelStateAtom';
 import { LightTooltip } from '../common/LightToolTip';
 import { SvgPath } from '../common/SvgPath';
 
@@ -155,7 +156,7 @@ interface IProps {
 export const EntryItemRaw: FC<IProps> = ({ entrySid }) => {
   const setSelection = useSetRecoilState(selectItemSelector);
   //  const setContextMenuState = useSetRecoilState(entryContextMenuAtom);
-  // const setNotification = useSetRecoilState(notificationAtom);
+  const setNotification = useSetRecoilState(notificationAtom);
   const entry = useRecoilValue(yakpKdbxItemAtom(entrySid));
   const customIcon = useRecoilValue(yakpCustomIconSelector(entry.customIconSid || ''));
 
@@ -164,9 +165,9 @@ export const EntryItemRaw: FC<IProps> = ({ entrySid }) => {
     const normalizedValue = value instanceof ProtectedValue ? value.getText() : value;
     if (normalizedValue) {
       navigator.clipboard.writeText(normalizedValue);
-      // setNotification(`${displayFieldName(fieldName)} is copied`);
+      setNotification(`${fieldName} is copied`);
     } else {
-      // setNotification(`Nothing to copy`);
+      setNotification(`Nothing to copy`);
     }
   };
 
@@ -182,7 +183,7 @@ export const EntryItemRaw: FC<IProps> = ({ entrySid }) => {
         {entry.isChanged && <ChangeMark />}
         <MainIcon onDoubleClick={() => entry.hasPassword && handleCopy('Password')} hasPassword={entry.hasPassword}>
           {entry.customIconSid ? (
-            <MainIconCustom src={customIcon} />
+            <MainIconCustom src={customIcon?.b64image} />
           ) : (
             <MainIconDefault path={DefaultKeeIcon.get(entry.defaultIconId)} />
           )}

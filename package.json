@@ -218,6 +218,7 @@
     "@date-io/date-fns": "^2.11.0",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
+    "@mui/lab": "^5.0.0-alpha.65",
     "@mui/material": "^5.2.8",
     "crypto-browserify": "^3.12.0",
     "electron-debug": "^3.2.0",

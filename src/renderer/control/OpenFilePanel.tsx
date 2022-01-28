@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { ProtectedValue } from 'kdbxweb';
 import { RenderSetting } from 'main/entity/RenderSetting';
+import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { IpcMainOpenDialog, IpcMainReadKdbx } from 'main/IpcCommunication/IpcExtention';
 
 import { FC, useEffect, useRef, useState } from 'react';
@@ -156,9 +157,12 @@ export const OpenFilePanel: FC = () => {
       setError(errorMsg);
     } else {
       updateRecentFiles(readKdbxResult.yakpMetadata.kdbxFile);
+
+      const items = readKdbxResult.yakpKdbxItems.map((i) => YakpKdbxItem.fromSerialized(i));
+
       setMetadata(readKdbxResult.yakpMetadata);
-      setItems(readKdbxResult.yakpKdbxItems);
       setCustomIcons(readKdbxResult.customIcons);
+      setItems(items);
       navigate('/app');
     }
   };

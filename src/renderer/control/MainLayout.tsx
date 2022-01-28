@@ -1,5 +1,6 @@
 import { styled } from '@mui/material';
 import React, { useState } from 'react';
+import { DetailItemPanel } from './detailEntryPanel/DetailItemPanel';
 import { GroupPanel } from './groupPanel/GroupPanel';
 import { EntryListPanel } from './listEntryPanel/EntryListPanel';
 
@@ -101,14 +102,18 @@ export const MainLayout = () => {
       <Bar style={{ left: 0, width: leftDragger.position }}>
         <GroupPanel />
       </Bar>
+
       <Dragger onMouseDown={(e) => handleMousedown(e, setLeftDragger)} style={{ left: leftDragger.position }} />
+
       <MiddleBar style={{ left: leftDragger.position, right: rightDragger.position }}>
         <EntryListPanel />
       </MiddleBar>
 
       <Dragger onMouseDown={(e) => handleMousedown(e, setRightDragger)} style={{ right: rightDragger.position }} />
-      <RightBar style={{ right: 0, width: rightDragger.position }}>{/*  <DetailPanel /> */}</RightBar>
-      {/* <NotificationPanel /> */}
+
+      <RightBar style={{ right: 0, width: rightDragger.position }}>
+        <DetailItemPanel />
+      </RightBar>
     </>
   );
 };
