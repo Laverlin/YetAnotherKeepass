@@ -85,13 +85,14 @@ const ItemContentRow = styled('div')(({ theme }) => ({
 const Title = styled('div', {
   shouldForwardProp: (prop) => prop !== 'isExpired' && prop !== 'isGroup',
 })<{ isExpired: boolean; isGroup: boolean }>(({ isExpired, isGroup, theme }) => ({
+  paddingTop: theme.spacing(1),
   textOverflow: 'ellipsis',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   fontFamily: theme.typography.subtitle1.fontFamily,
   fontWeight: isGroup ? 'bold' : theme.typography.subtitle1.fontWeight,
   fontSize: theme.typography.subtitle1.fontSize,
-  lineHeight: theme.typography.subtitle1.lineHeight,
+  lineHeight: '1.1', // theme.typography.subtitle1.lineHeight,
   letterSpacing: theme.typography.subtitle1.letterSpacing,
   textDecoration: isExpired ? 'line-through' : 'none',
 }));
@@ -106,7 +107,7 @@ const SubTitle = styled('div', {
   fontFamily: theme.typography.caption.fontFamily,
   fontWeight: theme.typography.caption.fontWeight,
   fontSize: theme.typography.caption.fontSize,
-  lineHeight: theme.typography.caption.lineHeight,
+  lineHeight: '1.1', // theme.typography.caption.lineHeight,
   letterSpacing: theme.typography.caption.letterSpacing,
   marginLeft: isAlignRight ? 'auto' : '2px',
   display: 'inline-block',
@@ -120,11 +121,11 @@ const LastRow = styled(SubTitle)(() => ({
 const InlineIcon = styled(SvgPath, {
   shouldForwardProp: (prop) => prop !== 'isCopyAllowed',
 })<{ isCopyAllowed?: boolean }>(({ isCopyAllowed, theme }) => ({
-  width: '16px',
-  height: '16px',
+  width: '18px',
+  height: '18px',
   paddingRight: theme.spacing(1),
   cursor: isCopyAllowed ? 'pointer' : 'default',
-  paddingTop: '7px',
+  paddingTop: theme.spacing(1),
 }));
 
 const AtachIcon = styled('div')(() => ({
