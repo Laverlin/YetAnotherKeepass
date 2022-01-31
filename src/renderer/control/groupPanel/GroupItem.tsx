@@ -1,4 +1,4 @@
-import { styled, ListItemIcon, ListItemText, IconButton, ListItemButton } from '@mui/material';
+import { styled, ListItemText, IconButton } from '@mui/material';
 import React, { FC } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { format } from 'date-fns';
@@ -8,41 +8,15 @@ import { groupStatSelector, selectItemSelector, yakpKdbxItemAtom } from '../../s
 import {} from '../../../main/entity/YakpKbdxItemExtention';
 import { LightTooltip } from '../common/LightToolTip';
 import { SvgPath } from '../common/SvgPath';
+import { GroupItemStyle } from './GroupItemStyle';
+import { GroupIconStyle } from './GroupIconStyle';
+import { PrimaryTextStyle } from './PrimaryTextStyle';
+import { SecondaryText } from './SecondaryText';
 
 const SmallIcon = styled(SvgPath)(({ theme }) => ({
   width: theme.spacing(1),
   height: theme.spacing(1),
   marginRight: theme.spacing(1 / 2),
-}));
-
-const ListItemGroup = styled(ListItemButton, {
-  shouldForwardProp: (prop) => prop !== 'nestLevel',
-})<{ nestLevel: number }>(({ theme, nestLevel }) => ({
-  height: theme.spacing(6),
-  paddingRight: theme.spacing(1),
-  paddingLeft: theme.spacing(1 + 4 * nestLevel),
-  '&:hover, &:focus': {
-    backgroundColor: 'rgba(170, 170, 170, 0.2)',
-  },
-  '&:hover': {
-    '& #contextMenuButton': {
-      display: 'block',
-    },
-  },
-  '&.Mui-selected': {
-    backgroundColor: '#4481C2',
-    '& #contextMenuButton': {
-      display: 'block',
-    },
-    '&:hover': {
-      backgroundColor: '#4481C2',
-    },
-  },
-}));
-
-const GroupIcon = styled(ListItemIcon)(({ theme }) => ({
-  color: theme.palette.grey.A100,
-  justifyContent: 'center',
 }));
 
 const ContextMenuIcon = styled(IconButton)(({ theme }) => ({
@@ -63,22 +37,6 @@ const ChangedMark = styled('div')(() => ({
   backgroundColor: '#f35b04',
   borderRadius: '50%',
   display: 'block',
-}));
-
-const PrimaryText = styled('div')(({ theme }) => ({
-  fontSize: theme.typography.body1.fontSize,
-  textOverflow: 'ellipsis',
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  color: theme.palette.background.default,
-}));
-
-const SecondaryText = styled('span')(({ theme }) => ({
-  fontSize: theme.typography.caption.fontSize,
-  textOverflow: 'ellipsis',
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  color: theme.palette.grey[400],
 }));
 
 interface IProps {
@@ -141,7 +99,7 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
 
   return (
     <LightTooltip title={item.fields.Notes || ''} arrow disableInteractive>
-      <ListItemGroup
+      <GroupItemStyle
         nestLevel={nestLevel}
         onDragOver={(e) => {
           e.preventDefault();
@@ -158,9 +116,9 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
         selected={item.isSelected}
         onClick={() => setSelection(item.sid)}
       >
-        <GroupIcon>
+        <GroupIconStyle>
           <SvgPath path={item.isAllItemsGroup ? SystemIcon.allItems : DefaultKeeIcon.get(item.defaultIconId)} />
-        </GroupIcon>
+        </GroupIconStyle>
 
         {item.isChanged && <ChangedMark />}
         <ListItemText
@@ -170,7 +128,7 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
             e.stopPropagation();
           }}
           onDrop={handleDrop}
-          primary={<PrimaryText>{item.title}</PrimaryText>}
+          primary={<PrimaryTextStyle>{item.title}</PrimaryTextStyle>}
           secondary={
             <SecondaryText>
               {groupStat.totalEntries > 0 && (
@@ -190,7 +148,7 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
             </ContextMenuIcon>
           </ContextMenu>
         )}
-      </ListItemGroup>
+      </GroupItemStyle>
     </LightTooltip>
   );
 };

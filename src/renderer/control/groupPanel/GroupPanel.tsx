@@ -3,7 +3,9 @@ import { allItemsGroupSid } from 'main/entity/YakpKdbxItem';
 import { FC, ReactFragment } from 'react';
 import { useRecoilValue } from 'recoil';
 import { allItemSelector, yakpMetadataAtom } from '../../state/atom';
+import { ColorSelectItem } from './ColorSelectItem';
 import { GroupItem } from './GroupItem';
+import { TagSelectListItem } from './TagSelectItem';
 
 const OptionList = styled('div')(({ theme }) => ({
   overflow: 'hidden',
@@ -12,7 +14,7 @@ const OptionList = styled('div')(({ theme }) => ({
   top: 0,
   left: 0,
   right: 0,
-  height: theme.spacing(6 * 3 + 1),
+  height: theme.spacing(6 * 3 + 2),
   borderBottomWidth: '1px',
   borderBottomColor: theme.palette.grey.A100,
   borderBottomStyle: 'solid',
@@ -27,7 +29,8 @@ const MainList = styled(divOverlayY, {
 })<{ isWithRecycle: boolean }>(({ theme, isWithRecycle }) => ({
   position: 'absolute',
   paddingTop: theme.spacing(1),
-  bottom: isWithRecycle ? theme.spacing(9) : 0,
+  paddingBottom: theme.spacing(1),
+  bottom: isWithRecycle ? theme.spacing(8) : 0,
   top: theme.spacing(6 * 3 + 2),
   left: 0,
   right: 0,
@@ -68,10 +71,8 @@ export const GroupPanel: FC = () => {
       <OptionList>
         <List disablePadding>
           <GroupItem itemSid={allItemsGroupSid} nestLevel={0} isContextMenuDisabled />
-          {/*
-          <ColorSelectListItem />
+          <ColorSelectItem />
           <TagSelectListItem />
-          */}
         </List>
       </OptionList>
 
