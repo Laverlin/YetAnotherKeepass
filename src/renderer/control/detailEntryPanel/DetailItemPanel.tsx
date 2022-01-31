@@ -161,7 +161,7 @@ export const DetailItemPanel: FC = () => {
   // helpers
   //
   const fieldInfos = new Map<string, FieldInfo>([
-    ['Title', { sortOrder: -5 } as FieldInfo],
+    // ['Title', { sortOrder: -5 } as FieldInfo],
     ['UserName', { sortOrder: -4 } as FieldInfo],
     ['Password', { sortOrder: -3, isProtected: true } as FieldInfo],
     ['URL', { sortOrder: -2 } as FieldInfo],
@@ -206,7 +206,11 @@ export const DetailItemPanel: FC = () => {
       </ItemTitle>
 
       <EntryItems>
-        {Array.from(Object.keys(entryView.fields))
+        {[
+          ...new Set(
+            Array.from(Object.keys(entryView.fields)).concat(entryView.isGroup ? [] : Array.from(fieldInfos.keys()))
+          ),
+        ]
           .map((field) => {
             const info = fieldInfos.get(field) || ({ sortOrder: 0 } as FieldInfo);
             return { name: field, value: entryView.fields[field], ...info };
@@ -217,7 +221,7 @@ export const DetailItemPanel: FC = () => {
               <PropertyInput
                 entry={entryView}
                 fieldId={field.name}
-                inputValue={ItemHelper.stripProtection(entry.fields[field.name])}
+                inputValue={ItemHelper.stripProtection(entry.fields[field.name] || '')}
                 isProtected={(field.isProtected as boolean) || field.value instanceof ProtectedValue}
                 isMultiline={field.isMultiline as boolean}
                 isCustomProperty={field.sortOrder === 0}

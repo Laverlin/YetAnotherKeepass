@@ -1,6 +1,7 @@
 /* eslint-disable no-return-assign */
 import { Divider, ListItemIcon, Menu, MenuItem } from '@mui/material';
 import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import React, { FC } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { DefaultKeeIcon } from '../../entity/DefaultKeeIcon';
@@ -33,6 +34,11 @@ export const EntryContextMenu: FC = () => {
         e.isRecycled = true;
       })
     );
+  };
+
+  const handleOpenUrl = (entry: YakpKdbxItem) => {
+    setContextMenuState(closeItemContextMenu);
+    window.electron.ipcRenderer.systemCommand('openUrl', entry.fields.URL.toString());
   };
 
   const { entry } = contextMenuState;
@@ -76,7 +82,7 @@ export const EntryContextMenu: FC = () => {
         </MenuItem>
       )}
       <Divider />
-      <MenuItem key="goUrl" onClick={() => setContextMenuState(closeItemContextMenu)} disabled>
+      <MenuItem key="goUrl" onClick={() => handleOpenUrl(entry)} disabled={!entry.fields.URL}>
         <ListItemIcon>
           <SvgPath path={DefaultKeeIcon.bolt} />
         </ListItemIcon>
