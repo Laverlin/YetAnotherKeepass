@@ -1,6 +1,6 @@
 /* eslint-disable no-return-assign */
 import { Checkbox, Grid, IconButton, Popover, styled, Tooltip, Typography } from '@mui/material';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from 'main/entity/ItemHelper';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { IpcMainLoadIcon } from 'main/IpcCommunication/IpcExtention';
 import { FC, useState } from 'react';

@@ -1,18 +1,20 @@
+/* eslint-disable no-return-assign */
 import { styled, ListItemText, IconButton } from '@mui/material';
 import React, { FC } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilCallback, useRecoilValue, useSetRecoilState } from 'recoil';
 import { format } from 'date-fns';
 import { groupContextMenuAtom, openItemContextMenu } from '../../state/panelStateAtom';
 import { DefaultKeeIcon } from '../../entity/DefaultKeeIcon';
 import { SystemIcon } from '../../entity/SystemIcon';
-import { groupStatSelector, selectItemSelector, yakpKdbxItemAtom } from '../../state/atom';
-import {} from '../../../main/entity/YakpKbdxItemExtention';
+import { allItemSelector, groupStatSelector, selectItemSelector, yakpKdbxItemAtom } from '../../state/atom';
+import { ItemHelper } from '../../../main/entity/ItemHelper';
 import { LightTooltip } from '../common/LightToolTip';
 import { SvgPath } from '../common/SvgPath';
 import { GroupItemStyle } from './GroupItemStyle';
 import { GroupIconStyle } from './GroupIconStyle';
 import { PrimaryTextStyle } from './PrimaryTextStyle';
 import { SecondaryText } from './SecondaryText';
+import { YakpKdbxItem } from '../../../main/entity/YakpKdbxItem';
 
 const SmallIcon = styled(SvgPath)(({ theme }) => ({
   width: theme.spacing(1),
@@ -51,19 +53,45 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
   const item = useRecoilValue(yakpKdbxItemAtom(itemSid));
   const setSelection = useSetRecoilState(selectItemSelector);
   const setContextMenu = useSetRecoilState(groupContextMenuAtom);
-  /*
-  const setTreeState = useSetRecoilState(itemIdsUpdateSelector);
-  const getDropped = useRecoilCallback(({snapshot}) => (uuid: string) => {
-    return snapshot.getLoadable(itemStateAtom(uuid)).valueMaybe()
-  })
-*/
+  const setDrop = useRecoilCallback(({ set, snapshot }) => (group: YakpKdbxItem, droppedSid: string) => {
+    const dropped = snapshot.getLoadable(yakpKdbxItemAtom(droppedSid)).valueMaybe();
+    if (!dropped) return;
+
+    const allItems = snapshot.getLoadable(allItemSelector).valueMaybe();
+    const checkAllowToMove = (check?: YakpKdbxItem): boolean => {
+      if (!check || !check.parentSid) return true;
+      if (check.parentSid === dropped.sid) return false;
+      return checkAllowToMove(allItems?.find((i) => i.sid === check.parentSid));
+    };
+    if (!checkAllowToMove(group)) return;
+
+    const updateChilds = (parent: YakpKdbxItem, isRecycled: boolean) => {
+      allItems
+        ?.filter((i) => i.parentSid === parent.sid)
+        .forEach((i) => {
+          set(yakpKdbxItemAtom(i.sid), (cur) => ItemHelper.apply(cur, (e) => (e.isRecycled = isRecycled)));
+          if (i.isGroup) updateChilds(i, isRecycled);
+        });
+    };
+
+    set(
+      yakpKdbxItemAtom(droppedSid),
+      ItemHelper.apply(dropped, (e) => {
+        e.parentSid = group.sid;
+        e.isRecycled = group.isRecycleBin ? true : group.isRecycled;
+      })
+    );
+    if (dropped.isRecycled !== group.isRecycled || group.isRecycleBin) {
+      updateChilds(dropped, group.isRecycleBin ? true : group.isRecycled);
+    }
+  });
+
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    // const entryId = event.dataTransfer.getData('text');
+    const droppedSid = event.dataTransfer.getData('text');
     event.dataTransfer.clearData();
-    // const droppedItem = getDropped(entryId);
-    // setTreeState(droppedItem?.moveItem(entryUuid));
+    setDrop(item, droppedSid);
   };
 
   const groupStat = useRecoilValue(groupStatSelector(itemSid));

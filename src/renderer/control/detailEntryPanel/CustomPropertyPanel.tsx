@@ -1,7 +1,7 @@
 /* eslint-disable no-return-assign */
 import { Checkbox, FormControlLabel, IconButton, Popover, styled, TextField } from '@mui/material';
 import { ProtectedValue } from 'kdbxweb';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from 'main/entity/ItemHelper';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { FC, useState } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';

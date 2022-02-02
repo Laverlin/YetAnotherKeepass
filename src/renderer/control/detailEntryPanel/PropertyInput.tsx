@@ -1,6 +1,6 @@
 import { IconButton, InputAdornment, styled, TextField } from '@mui/material';
 import { ProtectedValue } from 'kdbxweb';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from 'main/entity/ItemHelper';
 import { FC, useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { displayFieldName } from 'renderer/entity/DisplayFieldName';

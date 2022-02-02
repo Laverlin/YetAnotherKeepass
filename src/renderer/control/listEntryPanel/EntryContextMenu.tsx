@@ -1,6 +1,6 @@
 /* eslint-disable no-return-assign */
 import { Divider, ListItemIcon, Menu, MenuItem } from '@mui/material';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from 'main/entity/ItemHelper';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import React, { FC } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';

@@ -1,6 +1,6 @@
 import { ListItemIcon, Menu, MenuItem } from '@mui/material';
 import { ProtectedValue } from 'kdbxweb';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from 'main/entity/ItemHelper';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { FC } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';

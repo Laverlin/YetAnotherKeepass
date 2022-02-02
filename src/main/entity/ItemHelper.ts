@@ -32,6 +32,7 @@ export class ItemHelper {
     newItem.parentSid = parentSid;
     newItem.isGroup = isGroup;
     newItem.title = title;
+    newItem.isChanged = true;
     return newItem;
   }
 }

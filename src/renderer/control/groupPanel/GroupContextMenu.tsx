@@ -1,5 +1,6 @@
+/* eslint-disable no-return-assign */
 import { Divider, ListItemIcon, Menu, MenuItem } from '@mui/material';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from 'main/entity/ItemHelper';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { FC } from 'react';
 import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
@@ -30,7 +31,16 @@ export const GroupContextMenu: FC = () => {
     set(selectItemSelector, newItem.sid);
   });
   const meta = useRecoilValue(yakpMetadataAtom);
-  const setItemDelete = useRecoilCallback(({ set }) => (deleted: YakpKdbxItem) => {
+  const setItemDelete = useRecoilCallback(({ set, snapshot }) => (deleted: YakpKdbxItem) => {
+    const allItems = snapshot.getLoadable(allItemSelector).valueMaybe();
+    const setChildDeleted = (parent: YakpKdbxItem) => {
+      allItems
+        ?.filter((i) => i.parentSid === parent.sid)
+        .forEach((i) => {
+          set(yakpKdbxItemAtom(i.sid), (cur) => ItemHelper.apply(cur, (e) => (e.isRecycled = true)));
+          if (i.isGroup) setChildDeleted(i);
+        });
+    };
     set(selectItemSelector, deleted.parentSid);
     set(
       yakpKdbxItemAtom(deleted.sid),
@@ -39,6 +49,7 @@ export const GroupContextMenu: FC = () => {
         e.isRecycled = true;
       })
     );
+    setChildDeleted(deleted);
   });
 
   const getSiblings = useRecoilCallback(({ snapshot }) => (group: YakpKdbxItem) => {
@@ -77,7 +88,7 @@ export const GroupContextMenu: FC = () => {
   const handleCreateItem = (isGroup: boolean) => {
     if (!contextMenu.entry) return;
     setContextMenuState(closeItemContextMenu);
-    const newItem = ItemHelper.CreateItem(contextMenu.entry?.sid, isGroup, isGroup ? 'New Group' : '');
+    const newItem = ItemHelper.CreateItem(contextMenu.entry?.sid, isGroup, isGroup ? 'New Group' : 'New Entry');
     setNewItem(newItem);
   };
 

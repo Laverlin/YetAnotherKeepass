@@ -1,7 +1,7 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { CustomIcon } from 'main/entity/CustomIcon';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from 'main/entity/ItemHelper';
 import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { YakpMetadata } from 'main/entity/YakpMetadata';
 import { atom, atomFamily, DefaultValue, selector, selectorFamily } from 'recoil';
