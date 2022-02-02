@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { IconButton, styled, Tooltip, Typography } from '@mui/material';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from 'main/entity/ItemHelper';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { FC, useEffect } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';

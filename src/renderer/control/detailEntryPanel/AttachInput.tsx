@@ -1,6 +1,6 @@
 /* eslint-disable no-return-assign */
 import { Chip, IconButton, styled, Tooltip, Typography } from '@mui/material';
-import { ItemHelper } from 'main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from 'main/entity/ItemHelper';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { IpcMainAddAttechments } from 'main/IpcCommunication/IpcExtention';
 import { FC } from 'react';

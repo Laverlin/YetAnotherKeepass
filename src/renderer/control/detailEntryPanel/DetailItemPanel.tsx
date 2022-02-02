@@ -29,7 +29,7 @@ import { CustomPropertyPanel } from './CustomPropertyPanel';
 import { ColorSelectPanel } from './ColorSelectPanel';
 import { IconSelectPanel } from './IconSelectPanel';
 import { PasswordGeneratorPanel } from './PasswordGeneratorPanel';
-import { ItemHelper } from '../../../main/entity/YakpKbdxItemExtention';
+import { ItemHelper } from '../../../main/entity/ItemHelper';
 
 class FieldInfo {
   sortOrder: number = 0;
