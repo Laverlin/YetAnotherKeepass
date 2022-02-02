@@ -60,7 +60,7 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
     const allItems = snapshot.getLoadable(allItemSelector).valueMaybe();
     const checkAllowToMove = (check?: YakpKdbxItem): boolean => {
       if (!check || !check.parentSid) return true;
-      if (check.parentSid === dropped.sid) return false;
+      if (check.parentSid === dropped.sid || check.sid === dropped.sid) return false;
       return checkAllowToMove(allItems?.find((i) => i.sid === check.parentSid));
     };
     if (!checkAllowToMove(group)) return;
