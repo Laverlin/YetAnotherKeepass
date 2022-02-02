@@ -53,7 +53,8 @@ export class YakpKdbxItem {
     }
 
     item.isRecycled = checkIfRecycled(kdbxItem, database.meta.recycleBinUuid);
-    item.groupSortOrder = kdbxItem.parentGroup?.groups.findIndex((i) => i.uuid.equals(kdbxItem.uuid)) || 0;
+    if (item.isGroup)
+      item.groupSortOrder = kdbxItem.parentGroup?.groups.findIndex((i) => i.uuid.equals(kdbxItem.uuid)) || 0;
 
     if (kdbxItem instanceof KdbxEntry) {
       kdbxItem.history.forEach((i) => item.history.push(YakpKdbxItem.fromKdbx(i, database)));
@@ -82,7 +83,7 @@ export class YakpKdbxItem {
 
   /** Sorting index for groups
    */
-  groupSortOrder: number = 0;
+  groupSortOrder: number = -100;
 
   /** Is this entity Group of entities
    */

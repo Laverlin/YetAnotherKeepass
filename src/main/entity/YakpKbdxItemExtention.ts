@@ -1,4 +1,4 @@
-import { ProtectedValue } from 'kdbxweb';
+import { KdbxUuid, ProtectedValue } from 'kdbxweb';
 import { YakpKdbxItem } from './YakpKdbxItem';
 
 export class ItemHelper {
@@ -24,5 +24,14 @@ export class ItemHelper {
     cloned.isChanged = true;
     func(cloned);
     return cloned;
+  }
+
+  static CreateItem(parentSid: string, isGroup: boolean, title = '') {
+    const newItem = new YakpKdbxItem();
+    newItem.sid = KdbxUuid.random().id;
+    newItem.parentSid = parentSid;
+    newItem.isGroup = isGroup;
+    newItem.title = title;
+    return newItem;
   }
 }

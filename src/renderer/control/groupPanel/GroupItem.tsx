@@ -2,6 +2,7 @@ import { styled, ListItemText, IconButton } from '@mui/material';
 import React, { FC } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { format } from 'date-fns';
+import { groupContextMenuAtom, openItemContextMenu } from '../../state/panelStateAtom';
 import { DefaultKeeIcon } from '../../entity/DefaultKeeIcon';
 import { SystemIcon } from '../../entity/SystemIcon';
 import { groupStatSelector, selectItemSelector, yakpKdbxItemAtom } from '../../state/atom';
@@ -48,10 +49,9 @@ interface IProps {
 
 export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisabled = false }) => {
   const item = useRecoilValue(yakpKdbxItemAtom(itemSid));
-
   const setSelection = useSetRecoilState(selectItemSelector);
-  /*
   const setContextMenu = useSetRecoilState(groupContextMenuAtom);
+  /*
   const setTreeState = useSetRecoilState(itemIdsUpdateSelector);
   const getDropped = useRecoilCallback(({snapshot}) => (uuid: string) => {
     return snapshot.getLoadable(itemStateAtom(uuid)).valueMaybe()
@@ -143,7 +143,7 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
         />
         {!isContextMenuDisabled && (
           <ContextMenu id="contextMenuButton">
-            <ContextMenuIcon>
+            <ContextMenuIcon onClick={(e) => setContextMenu(openItemContextMenu(e.currentTarget, item))}>
               <SvgPath path={SystemIcon.dot_hamburger} />
             </ContextMenuIcon>
           </ContextMenu>

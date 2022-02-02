@@ -4,6 +4,7 @@ import { FC, ReactFragment } from 'react';
 import { useRecoilValue } from 'recoil';
 import { allItemSelector, yakpMetadataAtom } from '../../state/atom';
 import { ColorSelectItem } from './ColorSelectItem';
+import { GroupContextMenu } from './GroupContextMenu';
 import { GroupItem } from './GroupItem';
 import { TagSelectListItem } from './TagSelectItem';
 
@@ -68,6 +69,7 @@ export const GroupPanel: FC = () => {
 
   return (
     <>
+      <GroupContextMenu />
       <OptionList>
         <List disablePadding>
           <GroupItem itemSid={allItemsGroupSid} nestLevel={0} isContextMenuDisabled />
