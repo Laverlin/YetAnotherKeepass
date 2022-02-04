@@ -146,3 +146,15 @@ export const yakpCustomIconSelector = selectorFamily<CustomIcon | undefined, str
     ({ get }) =>
       get(yakpCustomIconsAtom).find((i) => i.key === sid),
 });
+
+export const isDbSavedSelector = selector<boolean>({
+  key: 'isDbSavedSelector',
+  get: ({ get }) => {
+    return !!get(allItemSelector).find((i) => i.isChanged);
+  },
+  set: ({ get, set }) => {
+    get(allItemSelector)
+      .filter((i) => i.isChanged)
+      .forEach((i) => set(yakpKdbxItemAtom(i.sid), (cur) => ItemHelper.apply(cur, (e) => (e.isChanged = false))));
+  },
+});
