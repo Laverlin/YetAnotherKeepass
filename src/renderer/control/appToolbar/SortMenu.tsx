@@ -1,10 +1,10 @@
 import { ListItemIcon, Menu, MenuItem } from '@mui/material';
 import { FC } from 'react';
 import { useRecoilState } from 'recoil';
-import { ISortMenuItem, sortMenuItems } from 'renderer/entity/ISortMenuItem';
-import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { sortEntriesAtom } from 'renderer/state/FilterAtom';
-import { closePanel, toolSortMenuAtom } from 'renderer/state/panelStateAtom';
+import { ISortMenuItem, sortMenuItems } from '../../entity/ISortMenuItem';
+import { SystemIcon } from '../../entity/SystemIcon';
+import { sortEntriesAtom } from '../../state/FilterAtom';
+import { closePanel, toolSortMenuAtom } from '../../state/panelStateAtom';
 import { SvgPath } from '../common/SvgPath';
 
 export const SortMenu: FC = () => {

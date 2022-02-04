@@ -1,10 +1,10 @@
 import { AppBar, IconButton, styled, Toolbar, Tooltip, Typography } from '@mui/material';
-import { SystemCommand } from 'main/IpcCommunication/IpcDispatcher';
 import { FC, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { isDbSavedSelector, yakpMetadataAtom } from 'renderer/state/atom';
-import { openPanel, toolSortMenuAtom } from 'renderer/state/panelStateAtom';
+import { SystemCommand } from '../../../main/IpcCommunication/IpcDispatcher';
+import { isDbSavedSelector, yakpMetadataAtom } from '../../state/atom';
+import { openPanel, toolSortMenuAtom } from '../../state/panelStateAtom';
 import { consts } from '../../entity/consts';
 import { SystemIcon } from '../../entity/SystemIcon';
 import { Spinner } from '../common/Spinner';

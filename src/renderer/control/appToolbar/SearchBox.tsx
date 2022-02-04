@@ -1,8 +1,8 @@
 import { IconButton, InputAdornment, OutlinedInput, styled } from '@mui/material';
 import { FC } from 'react';
 import { useRecoilState } from 'recoil';
-import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { searchFilterAtom } from 'renderer/state/FilterAtom';
+import { SystemIcon } from '../../entity/SystemIcon';
+import { searchFilterAtom } from '../../state/FilterAtom';
 import { SvgPath } from '../common/SvgPath';
 
 const SearchInput = styled(OutlinedInput)(({ theme }) => ({
