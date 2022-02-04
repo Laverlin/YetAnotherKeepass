@@ -1,10 +1,10 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { CustomIcon } from 'main/entity/CustomIcon';
-import { ItemHelper } from 'main/entity/ItemHelper';
-import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from 'main/entity/YakpKdbxItem';
-import { YakpMetadata } from 'main/entity/YakpMetadata';
 import { atom, atomFamily, DefaultValue, selector, selectorFamily } from 'recoil';
+import { CustomIcon } from '../../main/entity/CustomIcon';
+import { ItemHelper } from '../../main/entity/ItemHelper';
+import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from '../../main/entity/YakpKdbxItem';
+import { YakpMetadata } from '../../main/entity/YakpMetadata';
 import { GroupStatistic } from './GroupStatistic';
 
 export const yakpMetadataAtom = atom<YakpMetadata | undefined>({

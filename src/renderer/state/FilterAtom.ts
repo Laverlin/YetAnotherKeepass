@@ -1,7 +1,7 @@
 import { ProtectedValue } from 'kdbxweb';
-import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { atom, selector } from 'recoil';
-import { ISortMenuItem, sortMenuItems } from 'renderer/entity/ISortMenuItem';
+import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from '../../main/entity/YakpKdbxItem';
+import { ISortMenuItem, sortMenuItems } from '../entity/ISortMenuItem';
 import { allItemSelector, selectGroupAtom, yakpKdbxItemAtom } from './atom';
 
 /**
