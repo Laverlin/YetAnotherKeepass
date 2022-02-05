@@ -1,5 +1,5 @@
-import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { atom } from 'recoil';
+import { YakpKdbxItem } from '../../main/entity/YakpKdbxItem';
 
 /**
  * common contract for panels state

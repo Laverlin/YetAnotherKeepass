@@ -20,6 +20,7 @@ import { useSetRecoilState } from 'recoil';
 import { allItemSelector, yakpCustomIconsAtom, yakpMetadataAtom } from 'renderer/state/atom';
 import { DefaultKeeIcon } from '../entity/DefaultKeeIcon';
 import { SystemIcon } from '../entity/SystemIcon';
+import { Spinner } from './common/Spinner';
 import { SvgPath } from './common/SvgPath';
 
 const Form = styled('form')(() => ({
@@ -55,6 +56,7 @@ const EnterPlaceholder = styled('div')(({ theme }) => ({
   marginTop: -theme.spacing(2),
   height: '76px',
   width: '76px',
+  paddingTop: '16px',
 }));
 
 const SelectedFile = styled('div')(() => ({
@@ -147,8 +149,9 @@ export const OpenFilePanel: FC = () => {
 
   const handleReadKdbx = async () => {
     const pwd = ProtectedValue.fromString(password);
-
+    setLoading(true);
     const readKdbxResult = await IpcMainReadKdbx(selectedFileName, pwd.value, pwd.salt);
+    setLoading(false);
     if (readKdbxResult.yakpError) {
       const errorMsg =
         readKdbxResult.yakpError.errorId === 'InvalidKey'
@@ -222,16 +225,13 @@ export const OpenFilePanel: FC = () => {
             }}
           />
           {!isLoading ? (
-            <EnterButton
-              onClick={() => {
-                handleReadKdbx();
-              }}
-              disabled={!selectedFileName}
-            >
+            <EnterButton onClick={() => handleReadKdbx()} disabled={!selectedFileName}>
               <SvgPath size={50} path={SystemIcon.enterKey} />
             </EnterButton>
           ) : (
-            <EnterPlaceholder> </EnterPlaceholder>
+            <EnterPlaceholder>
+              <Spinner size={50} />
+            </EnterPlaceholder>
           )}
         </InputRow>
         <SelectedFile>

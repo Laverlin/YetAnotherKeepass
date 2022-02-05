@@ -1,6 +1,7 @@
 import { ProtectedValue } from 'kdbxweb';
-import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { atom, selector } from 'recoil';
+import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from '../../main/entity/YakpKdbxItem';
+import { ISortMenuItem, sortMenuItems } from '../entity/ISortMenuItem';
 import { allItemSelector, selectGroupAtom, yakpKdbxItemAtom } from './atom';
 
 /**
@@ -67,12 +68,10 @@ export const searchFilterAtom = atom<string>({
 /**
  * Atom to store the sort order state
  */
-/*
 export const sortEntriesAtom = atom<ISortMenuItem>({
   key: 'top/sortMenu',
-  default: sortMenuItems[0]
-})
-*/
+  default: sortMenuItems[0],
+});
 
 /**
  * Selector to filter items according to all available filters and sort them
@@ -94,13 +93,13 @@ export const filteredIdsSelector = selector<string[]>({
     const colorFilter = get(colorFilterAtom);
     const tagFilter = get(tagFilterAtom);
     const searchFilter = get(searchFilterAtom);
-    // const sortField = get(sortEntriesAtom);
+    const sortField = get(sortEntriesAtom);
     let filtered = get(groupEntriesSelector);
 
     if (colorFilter.color) filtered = filtered.filter((e) => e.bgColor === colorFilter.color);
     if (tagFilter.length > 0) filtered = filtered.filter((e) => e.tags.filter((t) => tagFilter.includes(t)).length > 0);
     if (searchFilter) filtered = filtered.filter((e) => filterQuery(e, searchFilter));
-    // filtered = filtered.slice().sort(sortField.compare);
+    filtered = filtered.slice().sort(sortField.compare);
 
     return filtered.map((i) => i.sid);
   },

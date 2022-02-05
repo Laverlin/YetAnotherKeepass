@@ -144,7 +144,8 @@
       "release/app/dist"
     ],
     "setupFiles": [
-      "./.erb/scripts/check-build-exists.ts"
+      "./.erb/scripts/check-build-exists.ts",
+      "./.erb/scripts/jest.config.js"
     ]
   },
   "devDependencies": {

@@ -1,10 +1,10 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { CustomIcon } from 'main/entity/CustomIcon';
-import { ItemHelper } from 'main/entity/ItemHelper';
-import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from 'main/entity/YakpKdbxItem';
-import { YakpMetadata } from 'main/entity/YakpMetadata';
 import { atom, atomFamily, DefaultValue, selector, selectorFamily } from 'recoil';
+import { CustomIcon } from '../../main/entity/CustomIcon';
+import { ItemHelper } from '../../main/entity/ItemHelper';
+import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from '../../main/entity/YakpKdbxItem';
+import { YakpMetadata } from '../../main/entity/YakpMetadata';
 import { GroupStatistic } from './GroupStatistic';
 
 export const yakpMetadataAtom = atom<YakpMetadata | undefined>({
@@ -145,4 +145,16 @@ export const yakpCustomIconSelector = selectorFamily<CustomIcon | undefined, str
     (sid) =>
     ({ get }) =>
       get(yakpCustomIconsAtom).find((i) => i.key === sid),
+});
+
+export const isDbSavedSelector = selector<boolean>({
+  key: 'isDbSavedSelector',
+  get: ({ get }) => {
+    return !!get(allItemSelector).find((i) => i.isChanged);
+  },
+  set: ({ get, set }) => {
+    get(allItemSelector)
+      .filter((i) => i.isChanged)
+      .forEach((i) => set(yakpKdbxItemAtom(i.sid), (cur) => ItemHelper.apply(cur, (e) => (e.isChanged = false))));
+  },
 });

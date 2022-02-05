@@ -1,9 +1,16 @@
-import { AppBar, IconButton, styled, Toolbar, Tooltip } from '@mui/material';
-import { SystemCommand } from 'main/IpcCommunication/IpcDispatcher';
+import { AppBar, IconButton, styled, Toolbar, Tooltip, Typography } from '@mui/material';
 import { FC, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { SystemCommand } from '../../../main/IpcCommunication/IpcDispatcher';
+import { isDbSavedSelector, yakpMetadataAtom } from '../../state/atom';
+import { openPanel, toolSortMenuAtom } from '../../state/panelStateAtom';
 import { consts } from '../../entity/consts';
 import { SystemIcon } from '../../entity/SystemIcon';
+import { Spinner } from '../common/Spinner';
 import { SvgPath } from '../common/SvgPath';
+import { SearchBox } from './SearchBox';
+import { SortMenu } from './SortMenu';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   WebkitAppRegion: 'drag',
@@ -20,15 +27,20 @@ const Resizer = styled('div')(() => ({
   WebkitAppRegion: 'no-drag',
 }));
 
-const ButtonIcon = styled(IconButton)(({ theme }) => ({
-  WebkitAppRegion: 'no-drag',
+const ButtonIcon = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== 'isDisabled',
+})<{ isDisabled?: boolean }>(({ theme, isDisabled }) => ({
+  ...(!isDisabled && {
+    WebkitAppRegion: 'no-drag',
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+    },
+  }),
   height: `${consts.topBarHeight}px`,
   width: `${consts.topBarHeight + 10}px`,
   borderRadius: 0,
-  '&:hover': {
-    backgroundColor: theme.palette.primary.main,
-  },
   display: 'flex',
+  ...(isDisabled && { color: theme.palette.grey[500] }),
 }));
 
 const ButtonCloseIcon = styled(ButtonIcon)(({ theme }) => ({
@@ -41,8 +53,24 @@ const Space = styled('span')(({ theme }) => ({
   width: theme.spacing(3),
 }));
 
+const Asterisk = styled('div')(() => ({
+  width: '15px',
+}));
+
+const DbName = styled(Typography)(({ theme }) => ({
+  color: theme.palette.grey.A100,
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(1 / 4),
+}));
+
 export const AppToolbar: FC = () => {
+  const location = useLocation();
+  const meta = useRecoilValue(yakpMetadataAtom);
+  const [isDbChanged, setDbSaved] = useRecoilState(isDbSavedSelector);
+  const setSortMenu = useSetRecoilState(toolSortMenuAtom);
+
   const [isMaximized, setMaximized] = useState(false);
+  const [isSaving, setLoader] = useState(false);
 
   const handleSystemCommand = (command: SystemCommand) => {
     window.electron.ipcRenderer.systemCommand(command);
@@ -50,11 +78,52 @@ export const AppToolbar: FC = () => {
     else setMaximized(false);
   };
 
+  const handleBackClick = () => {
+    // eslint-disable-next-line no-restricted-globals
+    history.back();
+  };
+
+  const handleSave = async () => {
+    setLoader(true);
+    // await currentContext().SaveContext();
+    setDbSaved(true);
+    setLoader(false);
+  };
+
   return (
     <AppBar position="absolute">
       <StyledToolbar variant="dense" disableGutters>
         <Resizer />
+        {location.pathname !== '/' && (
+          <>
+            <DbName> {`/// ${meta?.kdbxFileShort}`}</DbName>
+            <Asterisk>{isDbChanged && <Typography variant="h5">*</Typography>}</Asterisk>
+            {!isSaving ? (
+              <Tooltip title={`Save ${meta?.kdbxFileShort}`}>
+                <ButtonIcon color="inherit" isDisabled={!isDbChanged} onClick={handleSave}>
+                  <SvgPath size={20} path={SystemIcon.save} />
+                </ButtonIcon>
+              </Tooltip>
+            ) : (
+              <Spinner size={20} />
+            )}
 
+            <Tooltip title="Open another file">
+              <ButtonIcon color="inherit" onClick={handleBackClick}>
+                <SvgPath size={20} path={SystemIcon.openFile} />
+              </ButtonIcon>
+            </Tooltip>
+            <div style={{ marginLeft: 'auto' }}>
+              <SearchBox />
+            </div>
+            <Tooltip title="Sort">
+              <ButtonIcon color="inherit" onClick={(e) => setSortMenu(openPanel(e.currentTarget))}>
+                <SvgPath size={20} path={SystemIcon.sort} />
+              </ButtonIcon>
+            </Tooltip>
+          </>
+        )}
+        <SortMenu />
         <Tooltip title="Settings">
           <ButtonIcon sx={{ marginLeft: 'auto' }} color="inherit" onClick={() => {}}>
             <SvgPath size={20} path={SystemIcon.settings} />
