@@ -1,16 +1,24 @@
+/* eslint-disable no-return-assign */
 import { AppBar, IconButton, styled, Toolbar, Tooltip, Typography } from '@mui/material';
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { SystemCommand } from '../../../main/IpcCommunication/IpcDispatcher';
 import { isDbSavedSelector, yakpMetadataAtom } from '../../state/atom';
-import { openPanel, toolSortMenuAtom } from '../../state/panelStateAtom';
+import {
+  closePanel,
+  ConfirmationChoice,
+  confirmationDialogAtom,
+  openPanel,
+  toolSortMenuAtom,
+} from '../../state/panelStateAtom';
 import { consts } from '../../entity/consts';
 import { SystemIcon } from '../../entity/SystemIcon';
 import { Spinner } from '../common/Spinner';
 import { SvgPath } from '../common/SvgPath';
 import { SearchBox } from './SearchBox';
 import { SortMenu } from './SortMenu';
+import { ConfirmationDialog } from './ConfirmationDialog';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   WebkitAppRegion: 'drag',
@@ -68,6 +76,9 @@ export const AppToolbar: FC = () => {
   const meta = useRecoilValue(yakpMetadataAtom);
   const [isDbChanged, setDbSaved] = useRecoilState(isDbSavedSelector);
   const setSortMenu = useSetRecoilState(toolSortMenuAtom);
+  const setConfirmationState = useSetRecoilState(confirmationDialogAtom);
+
+  const resolver = useRef<{ resolve: (choice: ConfirmationChoice) => void }>();
 
   const [isMaximized, setMaximized] = useState(false);
   const [isSaving, setLoader] = useState(false);
@@ -90,6 +101,26 @@ export const AppToolbar: FC = () => {
     setLoader(false);
   };
 
+  const confirmAction = async (action: () => void) => {
+    let userChoice: ConfirmationChoice = 'ignore';
+    if (isDbChanged) {
+      setConfirmationState({ ...closePanel, isShowPanel: true });
+      userChoice = await new Promise((resolve) => (resolver.current = { resolve }));
+    }
+
+    switch (userChoice) {
+      case 'save':
+        await handleSave();
+        action();
+        break;
+      case 'ignore':
+        action();
+        break;
+      case 'cancel':
+      default:
+    }
+  };
+
   return (
     <AppBar position="absolute">
       <StyledToolbar variant="dense" disableGutters>
@@ -109,7 +140,7 @@ export const AppToolbar: FC = () => {
             )}
 
             <Tooltip title="Open another file">
-              <ButtonIcon color="inherit" onClick={handleBackClick}>
+              <ButtonIcon color="inherit" onClick={() => confirmAction(handleBackClick)}>
                 <SvgPath size={20} path={SystemIcon.openFile} />
               </ButtonIcon>
             </Tooltip>
@@ -140,10 +171,11 @@ export const AppToolbar: FC = () => {
             <SvgPath size={15} path={SystemIcon.maximizeThin} />
           )}
         </ButtonIcon>
-        <ButtonCloseIcon color="inherit" onClick={() => handleSystemCommand('exit')}>
+        <ButtonCloseIcon color="inherit" onClick={() => confirmAction(() => handleSystemCommand('exit'))}>
           <SvgPath size={15} path={SystemIcon.xMarkThin} />
         </ButtonCloseIcon>
       </StyledToolbar>
+      <ConfirmationDialog resolver={resolver} />
     </AppBar>
   );
 };
