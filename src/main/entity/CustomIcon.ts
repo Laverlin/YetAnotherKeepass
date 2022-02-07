@@ -22,6 +22,11 @@ export class CustomIcon {
     return customIcon;
   }
 
+  static toBinary(customIcon: CustomIcon): ArrayBuffer {
+    const b64 = customIcon.b64image.replace('data:image;base64,', '');
+    return new Uint8Array(Buffer.from(b64, 'base64'));
+  }
+
   key: string = '';
 
   b64image: string = '';

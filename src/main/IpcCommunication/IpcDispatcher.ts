@@ -1,9 +1,17 @@
 /* eslint-disable class-methods-use-this */
 import fs from 'fs';
 import { BrowserWindow, dialog, ipcMain, IpcMainEvent, shell } from 'electron';
-import { Credentials, CryptoEngine, Kdbx, KdbxBinary, KdbxBinaryWithHash, KdbxError, ProtectedValue } from 'kdbxweb';
+import {
+  Credentials,
+  CryptoEngine,
+  Kdbx,
+  KdbxBinary,
+  KdbxBinaryWithHash,
+  KdbxCustomIcon,
+  KdbxError,
+  ProtectedValue,
+} from 'kdbxweb';
 import path from 'path';
-import { YakpKdbxItem } from '../entity/YakpKdbxItem';
 import { RenderSetting } from '../entity/RenderSetting';
 import { ReadKdbxResult } from '../entity/ReadKdbxResult';
 import { YakpError } from '../entity/YakpError';
@@ -13,6 +21,8 @@ import { YaKeepassSetting } from '../entity/YaKeepassSetting';
 import { IpcChannels } from './IpcChannels';
 import { YakpMetadata } from '../entity/YakpMetadata';
 import { CustomIcon } from '../entity/CustomIcon';
+import { YakpItemChanges } from '../entity/YakpItemChanges';
+import { ItemHelper } from '../entity/ItemHelper';
 
 export type SystemCommand = 'minimize' | 'maximize' | 'restore' | 'exit' | 'openUrl';
 
@@ -20,6 +30,8 @@ export class IpcDispatcher {
   private yaKeepassSetting: YaKeepassSetting;
 
   private database: Kdbx | undefined;
+
+  private kdbxFilePath: string | undefined;
 
   constructor(yaKeepassSetting: YaKeepassSetting) {
     this.yaKeepassSetting = yaKeepassSetting;
@@ -43,6 +55,45 @@ export class IpcDispatcher {
     ipcMain.on(IpcChannels.attachemnt, (event, entrySid: string, key?: string) =>
       this.handleAttachment(event, entrySid, key)
     );
+    ipcMain.on(IpcChannels.changes, (event, changes: YakpItemChanges) => this.handleSaveChanges(event, changes));
+  }
+
+  async handleSaveChanges(event: IpcMainEvent, changes: YakpItemChanges) {
+    try {
+      if (!this.database || !this.kdbxFilePath) throw Error('no database');
+      const kdbxIcons = this.database.meta.customIcons;
+      const kdb = this.database;
+
+      // delete removed icons
+      //
+      kdbxIcons.forEach((_, key) => {
+        if (!changes.Icons.find((i) => i.key === key)) kdbxIcons.delete(key);
+      });
+
+      // add new icons
+      //
+      changes.Icons.forEach((i) => {
+        if (!kdbxIcons.has(i.key)) {
+          const iconData: KdbxCustomIcon = {
+            name: i.key,
+            data: CustomIcon.toBinary(i),
+          };
+          kdbxIcons.set(i.key, iconData);
+        }
+      });
+
+      changes.Items.filter((i) => i.isChanged)
+        .map((i) => ItemHelper.fromSerialized(i))
+        .forEach((i) => {
+          ItemHelper.toKdbx(i, kdb, changes.Items);
+        });
+      const db = await this.database.save();
+      fs.writeFileSync(this.kdbxFilePath, Buffer.from(db));
+      event.reply(IpcChannels.changes, true);
+    } catch (e) {
+      console.log(e);
+      event.reply(IpcChannels.changes, false);
+    }
   }
 
   async onSystemCommand(command: SystemCommand, param?: string) {
@@ -138,9 +189,10 @@ export class IpcDispatcher {
       const credentials = new Credentials(password, null);
       const database = await Kdbx.load(new Uint8Array(data).buffer, credentials);
       this.database = database;
+      this.kdbxFilePath = kdbxFilePath;
 
       const items = Array.from(database.getDefaultGroup().allGroupsAndEntries()).map((i) =>
-        YakpKdbxItem.fromKdbx(i, database)
+        ItemHelper.fromKdbx(i, database)
       );
 
       event.reply(

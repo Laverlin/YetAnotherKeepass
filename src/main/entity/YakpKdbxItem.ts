@@ -1,68 +1,6 @@
-import { Kdbx, KdbxEntry, KdbxGroup, KdbxUuid, ProtectedValue } from 'kdbxweb';
-
-const checkIfRecycled = (kdbxItem: KdbxEntry | KdbxGroup, recycleBinUuid: KdbxUuid | undefined) => {
-  if (!recycleBinUuid) return false;
-  let parent = kdbxItem.parentGroup;
-  while (parent) {
-    if (parent.uuid.equals(recycleBinUuid)) return true;
-    parent = parent.parentGroup;
-  }
-  return false;
-};
+import { KdbxUuid, ProtectedValue } from 'kdbxweb';
 
 export class YakpKdbxItem {
-  static fromSerialized(serializedItem: YakpKdbxItem) {
-    let item = new YakpKdbxItem();
-    item = Object.assign(item, serializedItem);
-    Object.keys(serializedItem.fields).forEach((f) => {
-      const field = item.fields[f] as ProtectedValue;
-      item.fields[f] =
-        !!field.salt && !!field.value ? new ProtectedValue(field.value, field.salt) : serializedItem.fields[f];
-    });
-    item.history = [...serializedItem.history];
-    item.binaries = [...serializedItem.binaries];
-    return item;
-  }
-
-  static fromKdbx(kdbxItem: KdbxEntry | KdbxGroup, database: Kdbx) {
-    const item = new YakpKdbxItem();
-    item.sid = kdbxItem.uuid.id;
-    item.parentSid = kdbxItem.parentGroup?.uuid.id;
-    item.isGroup = kdbxItem instanceof KdbxGroup;
-    item.isDefaultGroup = database.getDefaultGroup().uuid.equals(kdbxItem.uuid);
-    item.isRecycleBin = kdbxItem.uuid.equals(database.meta.recycleBinUuid);
-    item.title = (kdbxItem instanceof KdbxGroup ? kdbxItem.name : kdbxItem.fields.get('Title'))?.toString() || '';
-    item.defaultIconId = kdbxItem.icon || 0;
-    item.isExpires = kdbxItem.times.expires || false;
-    item.expiryTime = kdbxItem.times.expiryTime;
-    item.bgColor = (kdbxItem instanceof KdbxEntry && kdbxItem.bgColor) || '';
-    item.customIconSid = kdbxItem.customIcon?.id;
-    item.tags = kdbxItem.tags;
-    item.binaries = (kdbxItem instanceof KdbxEntry && Array.from(kdbxItem.binaries.keys())) || [];
-    item.lastModifiedTime = kdbxItem.times.lastModTime || new Date();
-    item.lastAccessTime = kdbxItem.times.lastAccessTime || item.lastModifiedTime;
-    item.creationTime = kdbxItem.times.creationTime || item.lastModifiedTime;
-    item.usageCount = kdbxItem.times.usageCount || 0;
-    item.hasPassword = kdbxItem instanceof KdbxEntry && !!kdbxItem.fields.get('Password');
-    if (!item.isGroup) {
-      (kdbxItem as KdbxEntry).fields.forEach((value, key) => {
-        if (key !== 'Title') item.fields[key] = value;
-      });
-    } else {
-      item.fields.Notes = (kdbxItem as KdbxGroup).notes || '';
-    }
-
-    item.isRecycled = checkIfRecycled(kdbxItem, database.meta.recycleBinUuid);
-    if (item.isGroup)
-      item.groupSortOrder = kdbxItem.parentGroup?.groups.findIndex((i) => i.uuid.equals(kdbxItem.uuid)) || 0;
-
-    if (kdbxItem instanceof KdbxEntry) {
-      kdbxItem.history.forEach((i) => item.history.push(YakpKdbxItem.fromKdbx(i, database)));
-    }
-
-    return item;
-  }
-
   /**
    * is there any changes since last save
    */

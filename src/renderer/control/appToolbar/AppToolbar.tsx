@@ -4,11 +4,12 @@ import { FC, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { SystemCommand } from '../../../main/IpcCommunication/IpcDispatcher';
-import { isDbSavedSelector, yakpMetadataAtom } from '../../state/atom';
+import { allItemSelector, isDbSavedSelector, yakpCustomIconsAtom, yakpMetadataAtom } from '../../state/atom';
 import {
   closePanel,
   ConfirmationChoice,
   confirmationDialogAtom,
+  notificationAtom,
   openPanel,
   toolSortMenuAtom,
 } from '../../state/panelStateAtom';
@@ -19,6 +20,8 @@ import { SvgPath } from '../common/SvgPath';
 import { SearchBox } from './SearchBox';
 import { SortMenu } from './SortMenu';
 import { ConfirmationDialog } from './ConfirmationDialog';
+import { IpcMainSaveChanges } from '../../../main/IpcCommunication/IpcExtention';
+import { YakpItemChanges } from '../../../main/entity/YakpItemChanges';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   WebkitAppRegion: 'drag',
@@ -77,6 +80,10 @@ export const AppToolbar: FC = () => {
   const [isDbChanged, setDbSaved] = useRecoilState(isDbSavedSelector);
   const setSortMenu = useSetRecoilState(toolSortMenuAtom);
   const setConfirmationState = useSetRecoilState(confirmationDialogAtom);
+  const setNotification = useSetRecoilState(notificationAtom);
+
+  const allIcons = useRecoilValue(yakpCustomIconsAtom);
+  const allItems = useRecoilValue(allItemSelector);
 
   const resolver = useRef<{ resolve: (choice: ConfirmationChoice) => void }>();
 
@@ -97,6 +104,11 @@ export const AppToolbar: FC = () => {
   const handleSave = async () => {
     setLoader(true);
     // await currentContext().SaveContext();
+    const changes = new YakpItemChanges();
+    changes.Icons = allIcons;
+    changes.Items = allItems;
+    const saveResult = await IpcMainSaveChanges(changes);
+    setNotification(`DB save is ${saveResult ? 'successful' : 'unsuccessful'}`);
     setDbSaved(true);
     setLoader(false);
   };

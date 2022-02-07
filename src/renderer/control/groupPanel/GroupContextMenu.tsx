@@ -72,13 +72,10 @@ export const GroupContextMenu: FC = () => {
 
   const setGroupShift = useRecoilCallback(({ set }) => (group: YakpKdbxItem, sibling: YakpKdbxItem) => {
     const groupOrder = group.groupSortOrder;
-    const groupCopy = ItemHelper.clone(group);
-    groupCopy.groupSortOrder = sibling.groupSortOrder;
-    const siblingCopy = ItemHelper.clone(sibling);
-    siblingCopy.groupSortOrder = groupOrder;
+    const groupCopy = ItemHelper.apply(group, (g) => (g.groupSortOrder = sibling.groupSortOrder));
+    const siblingCopy = ItemHelper.apply(sibling, (g) => (g.groupSortOrder = groupOrder));
     set(yakpKdbxItemAtom(groupCopy.sid), groupCopy);
     set(yakpKdbxItemAtom(siblingCopy.sid), siblingCopy);
-    if (group.parentSid) set(yakpKdbxItemAtom(group.parentSid), (cur) => ItemHelper.apply(cur, () => {}));
   });
 
   const siblings = contextMenu.entry ? getSiblings(contextMenu.entry) : ({} as ISiblings);
