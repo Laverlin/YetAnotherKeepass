@@ -82,11 +82,22 @@ export class IpcDispatcher {
         }
       });
 
+      // update item data
+      //
       changes.Items.filter((i) => i.isChanged)
         .map((i) => ItemHelper.fromSerialized(i))
         .forEach((i) => {
           ItemHelper.toKdbx(i, kdb, changes.Items);
         });
+
+      // update order in changed group
+      //
+      changes.Items.filter((i) => i.isChanged && i.isGroup && i.parentSid).forEach((i) => {
+        ItemHelper.reorderSiblings(i.parentSid || '', changes.Items, kdb);
+      });
+
+      // save db to disk
+      //
       const db = await this.database.save();
       fs.writeFileSync(this.kdbxFilePath, Buffer.from(db));
       event.reply(IpcChannels.changes, true);

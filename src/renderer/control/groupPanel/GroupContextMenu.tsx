@@ -25,7 +25,16 @@ export const GroupContextMenu: FC = () => {
   // Global state
   //
   const [contextMenu, setContextMenuState] = useRecoilState(groupContextMenuAtom);
-  const setNewItem = useRecoilCallback(({ set }) => (newItem: YakpKdbxItem) => {
+  const setNewItem = useRecoilCallback(({ set, snapshot }) => (newItem: YakpKdbxItem) => {
+    if (newItem.isGroup) {
+      const siblingsOrder = snapshot
+        .getLoadable(allItemSelector)
+        .valueMaybe()
+        ?.filter((i) => i.parentSid === newItem.parentSid && i.isGroup)
+        .map((i) => i.groupSortOrder) || [0];
+      const index = Math.min(...siblingsOrder);
+      newItem.groupSortOrder = index - 1;
+    }
     set(yakpKdbxItemAtomIds, (cur) => cur.concat(newItem.sid));
     set(yakpKdbxItemAtom(newItem.sid), newItem);
     set(selectItemSelector, newItem.sid);

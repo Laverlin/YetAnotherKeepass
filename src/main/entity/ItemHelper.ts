@@ -33,7 +33,6 @@ export class ItemHelper {
     newItem.isGroup = isGroup;
     newItem.title = title;
     newItem.isChanged = true;
-    newItem.groupSortOrder = -1;
     return newItem;
   }
 
@@ -116,17 +115,22 @@ export class ItemHelper {
     kdbxItem.tags = yakpItem.tags;
     kdbxItem.times.expires = yakpItem.isExpires;
     kdbxItem.times.expiryTime = yakpItem.expiryTime;
-    if (!yakpItem.isDefaultGroup)
-      if (yakpItem.isGroup) {
-        const siblings = items
-          .filter((i) => i.parentSid === yakpItem.parentSid && i.isGroup)
-          .sort((a, b) => a.groupSortOrder - b.groupSortOrder);
-        const sortPosition = siblings.findIndex((s) => s.sid === yakpItem.sid);
-        database.move(kdbxItem, this.getParent(yakpItem, allKdbxItems, items, database), sortPosition);
-      } else {
-        database.move(kdbxItem, this.getParent(yakpItem, allKdbxItems, items, database));
-      }
+    if (!yakpItem.isDefaultGroup) database.move(kdbxItem, this.getParent(yakpItem, allKdbxItems, items, database));
     return kdbxItem;
+  }
+
+  static reorderSiblings(parentSid: string, items: YakpKdbxItem[], database: Kdbx) {
+    const allGroups = Array.from(database.getDefaultGroup().allGroups());
+    const parentGroup = allGroups.find((g) => g.uuid.id === parentSid);
+    if (!parentGroup) return;
+    const siblings = items
+      .filter((i) => i.parentSid === parentSid && i.isGroup)
+      .sort((a, b) => a.groupSortOrder - b.groupSortOrder);
+    siblings.forEach((item, index) => {
+      const kdbxItem = allGroups.find((i) => i.uuid.id === item.sid);
+      if (!kdbxItem) return;
+      database.move(kdbxItem, parentGroup, index);
+    });
   }
 
   private static getParent = (
