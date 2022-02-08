@@ -1,6 +1,7 @@
 import { CustomIcon } from 'main/entity/CustomIcon';
 import { ReadKdbxResult } from 'main/entity/ReadKdbxResult';
 import { RenderSetting } from 'main/entity/RenderSetting';
+import { YakpItemChanges } from 'main/entity/YakpItemChanges';
 import { SystemCommand } from './IpcDispatcher';
 
 declare global {
@@ -27,6 +28,8 @@ export interface IpcRenderer {
   addAttachments(entrySid: string): void;
   onAddAttachments(func: (attachments: string[]) => void): void;
   saveAttachment(entrySid: string, key: string): void;
+  saveChanges(YakpItemChanges: YakpItemChanges): void;
+  onSaveChanges(func: (saveResult: boolean) => void): void;
 }
 
 export const IpcMainOpenDialog = () => {
@@ -62,5 +65,14 @@ export const IpcMainAddAttechments = (entrySid: string) => {
       resolve(result);
     });
     window.electron.ipcRenderer.addAttachments(entrySid);
+  });
+};
+
+export const IpcMainSaveChanges = (changes: YakpItemChanges) => {
+  return new Promise<boolean>((resolve) => {
+    window.electron.ipcRenderer.onSaveChanges((result) => {
+      resolve(result);
+    });
+    window.electron.ipcRenderer.saveChanges(changes);
   });
 };

@@ -5,6 +5,7 @@ const IpcChannels = {
   systemCommand: 'systemCommand',
   customIcon: 'customIcon',
   attachemnt: 'attachment',
+  changes: 'changes',
 };
 
 module.exports = { IpcChannels };

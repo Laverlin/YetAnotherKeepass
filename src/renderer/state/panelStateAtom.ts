@@ -114,3 +114,10 @@ export const notificationAtom = atom<string>({
   key: 'global/notification',
   default: '',
 });
+
+export type ConfirmationChoice = 'save' | 'ignore' | 'cancel';
+
+export const confirmationDialogAtom = atom<IPanelState>({
+  key: 'confirmationDialogAtom',
+  default: { ...closePanel },
+});

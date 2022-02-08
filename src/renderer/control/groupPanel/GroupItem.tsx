@@ -74,11 +74,20 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
         });
     };
 
+    const getSortOrder = (parentSid: string) => {
+      const siblingsOrder = allItems
+        ?.filter((i) => i.parentSid === parentSid && i.isGroup)
+        .map((i) => i.groupSortOrder) || [0];
+      const index = Math.min(...siblingsOrder);
+      return index - 1;
+    };
+
     set(
       yakpKdbxItemAtom(droppedSid),
       ItemHelper.apply(dropped, (e) => {
         e.parentSid = group.sid;
         e.isRecycled = group.isRecycleBin ? true : group.isRecycled;
+        if (e.isGroup) e.groupSortOrder = getSortOrder(group.sid);
       })
     );
     if (dropped.isRecycled !== group.isRecycled || group.isRecycleBin) {

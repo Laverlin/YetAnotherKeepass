@@ -44,6 +44,12 @@ contextBridge.exposeInMainWorld('electron', {
     saveAttachment(entrySid, key) {
       ipcRenderer.send(IpcChannels.attachemnt, entrySid, key);
     },
+    saveChanges(itemCahnges) {
+      ipcRenderer.send(IpcChannels.changes, itemCahnges);
+    },
+    onSaveChanges(func) {
+      ipcRenderer.once(IpcChannels.changes, (event, ...args) => func(...args));
+    },
 
     myPing() {
       ipcRenderer.send('ipc-example', 'ping');

@@ -168,9 +168,7 @@ export const DetailItemPanel: FC = () => {
     ['Notes', { sortOrder: 100, isMultiline: true } as FieldInfo],
   ]);
 
-  const entryView = historyState.isInHistory
-    ? entry.history[historyState.historyIndex] // YakpKdbxItem.fromSerialized({ ...entry.history[historyState.historyIndex] })
-    : entry;
+  const entryView = historyState.isInHistory ? entry.history[historyState.historyIndex] : entry;
 
   return (
     <form noValidate autoComplete="off">
@@ -221,7 +219,7 @@ export const DetailItemPanel: FC = () => {
               <PropertyInput
                 entry={entryView}
                 fieldId={field.name}
-                inputValue={ItemHelper.stripProtection(entry.fields[field.name] || '')}
+                inputValue={ItemHelper.stripProtection(entryView.fields[field.name] || '')}
                 isProtected={(field.isProtected as boolean) || field.value instanceof ProtectedValue}
                 isMultiline={field.isMultiline as boolean}
                 isCustomProperty={field.sortOrder === 0}

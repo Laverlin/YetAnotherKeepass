@@ -25,7 +25,16 @@ export const GroupContextMenu: FC = () => {
   // Global state
   //
   const [contextMenu, setContextMenuState] = useRecoilState(groupContextMenuAtom);
-  const setNewItem = useRecoilCallback(({ set }) => (newItem: YakpKdbxItem) => {
+  const setNewItem = useRecoilCallback(({ set, snapshot }) => (newItem: YakpKdbxItem) => {
+    if (newItem.isGroup) {
+      const siblingsOrder = snapshot
+        .getLoadable(allItemSelector)
+        .valueMaybe()
+        ?.filter((i) => i.parentSid === newItem.parentSid && i.isGroup)
+        .map((i) => i.groupSortOrder) || [0];
+      const index = Math.min(...siblingsOrder);
+      newItem.groupSortOrder = index - 1;
+    }
     set(yakpKdbxItemAtomIds, (cur) => cur.concat(newItem.sid));
     set(yakpKdbxItemAtom(newItem.sid), newItem);
     set(selectItemSelector, newItem.sid);
@@ -72,13 +81,10 @@ export const GroupContextMenu: FC = () => {
 
   const setGroupShift = useRecoilCallback(({ set }) => (group: YakpKdbxItem, sibling: YakpKdbxItem) => {
     const groupOrder = group.groupSortOrder;
-    const groupCopy = ItemHelper.clone(group);
-    groupCopy.groupSortOrder = sibling.groupSortOrder;
-    const siblingCopy = ItemHelper.clone(sibling);
-    siblingCopy.groupSortOrder = groupOrder;
+    const groupCopy = ItemHelper.apply(group, (g) => (g.groupSortOrder = sibling.groupSortOrder));
+    const siblingCopy = ItemHelper.apply(sibling, (g) => (g.groupSortOrder = groupOrder));
     set(yakpKdbxItemAtom(groupCopy.sid), groupCopy);
     set(yakpKdbxItemAtom(siblingCopy.sid), siblingCopy);
-    if (group.parentSid) set(yakpKdbxItemAtom(group.parentSid), (cur) => ItemHelper.apply(cur, () => {}));
   });
 
   const siblings = contextMenu.entry ? getSiblings(contextMenu.entry) : ({} as ISiblings);
