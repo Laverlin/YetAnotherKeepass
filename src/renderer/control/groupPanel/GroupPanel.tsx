@@ -80,6 +80,7 @@ export const GroupPanel: FC = () => {
 
       <MainList isWithRecycle={!!metadata?.recycleBinSid}>{renderChildGroups(metadata.defaultGroupSid)}</MainList>
 
+      {console.log(metadata)}
       {!!metadata?.recycleBinSid && (
         <RecycleBinItem>
           <GroupItem itemSid={metadata.recycleBinSid} nestLevel={1} isContextMenuDisabled />

@@ -81,7 +81,7 @@ export const EntryContextMenu: FC = () => {
           Copy Url
         </MenuItem>
       )}
-      <Divider />
+      {!entry.isGroup && <Divider />}
       <MenuItem key="goUrl" onClick={() => handleOpenUrl(entry)} disabled={!entry.fields.URL}>
         <ListItemIcon>
           <SvgPath path={DefaultKeeIcon.bolt} />
@@ -95,7 +95,7 @@ export const EntryContextMenu: FC = () => {
         Auto-Type
       </MenuItem>
       <Divider />
-      <MenuItem key="delete" onClick={() => handleDeleteEntry()}>
+      <MenuItem key="delete" onClick={() => handleDeleteEntry()} disabled={entry.isRecycled}>
         <ListItemIcon>
           <SvgPath path={DefaultKeeIcon.trash} />
         </ListItemIcon>

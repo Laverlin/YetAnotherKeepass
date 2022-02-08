@@ -1,5 +1,5 @@
 /* eslint-disable no-return-assign */
-import { AppBar, IconButton, styled, Toolbar, Tooltip, Typography } from '@mui/material';
+import { AppBar, Box, IconButton, styled, Toolbar, Tooltip, Typography } from '@mui/material';
 import { FC, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -60,6 +60,12 @@ const ButtonCloseIcon = styled(ButtonIcon)(({ theme }) => ({
   },
 }));
 
+const SavePlaceholder = styled('div')(() => ({
+  display: 'flex',
+  justifyContent: 'center',
+  width: `${consts.topBarHeight + 10}px`,
+}));
+
 const Space = styled('span')(({ theme }) => ({
   width: theme.spacing(3),
 }));
@@ -103,7 +109,6 @@ export const AppToolbar: FC = () => {
 
   const handleSave = async () => {
     setLoader(true);
-    // await currentContext().SaveContext();
     const changes = new YakpItemChanges();
     changes.Icons = allIcons;
     changes.Items = allItems;
@@ -148,7 +153,9 @@ export const AppToolbar: FC = () => {
                 </ButtonIcon>
               </Tooltip>
             ) : (
-              <Spinner size={20} />
+              <SavePlaceholder>
+                <Spinner size={20} />
+              </SavePlaceholder>
             )}
 
             <Tooltip title="Open another file">
