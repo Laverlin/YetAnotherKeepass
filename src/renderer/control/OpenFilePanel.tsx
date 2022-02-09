@@ -113,8 +113,15 @@ export const OpenFilePanel: FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.electron.ipcRenderer.onSetting((s) => setSetting(s));
+    window.electron.ipcRenderer.onSetting((s) => {
+      setSetting(s);
+      if (s.recentFiles && s.recentFiles.length > 0) {
+        setFileName(s.recentFiles[0]);
+        setInputFocus();
+      }
+    });
     window.electron.ipcRenderer.getSetting();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFileSelect = (selectedFile: string) => {
@@ -234,6 +241,7 @@ export const OpenFilePanel: FC = () => {
             </EnterPlaceholder>
           )}
         </InputRow>
+        {/*
         <SelectedFile>
           {selectedFileName && (
             <>
@@ -244,7 +252,12 @@ export const OpenFilePanel: FC = () => {
         </SelectedFile>
         <List>
           {setting?.recentFiles.map((file) => (
-            <FileItemRow button key={file} onClick={() => handleFileSelect(file)}>
+            <FileItemRow
+              button
+              key={file}
+              onClick={() => handleFileSelect(file)}
+              onSelect={() => handleFileSelect(file)}
+            >
               <ListItemIcon>
                 <SvgPath path={DefaultKeeIcon.database} />
               </ListItemIcon>
@@ -257,6 +270,7 @@ export const OpenFilePanel: FC = () => {
             </FileItemRow>
           ))}
         </List>
+          */}
       </Content>
     </Form>
   );
