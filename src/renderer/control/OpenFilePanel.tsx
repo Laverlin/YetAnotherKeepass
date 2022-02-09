@@ -116,8 +116,8 @@ export const OpenFilePanel: FC = () => {
     window.electron.ipcRenderer.onSetting((s) => {
       setSetting(s);
       if (s.recentFiles && s.recentFiles.length > 0) {
-        setFileName(s.recentFiles[0]);
         setInputFocus();
+        setFileName(s.recentFiles[0]);
       }
     });
     window.electron.ipcRenderer.getSetting();
@@ -128,16 +128,16 @@ export const OpenFilePanel: FC = () => {
     setFileName(selectedFile);
     setError('');
     setPassword('');
-    setInputFocus();
     setLoading(false);
+    setInputFocus();
   };
 
   const handleOpenFile = async () => {
     const fileName = await IpcMainOpenDialog();
     setFileName(fileName);
-    if (fileName) setInputFocus();
     setPassword('');
     setError('');
+    if (fileName) setInputFocus();
   };
 
   const updateRecentFiles = (file: string, isRemove = false) => {
@@ -185,7 +185,7 @@ export const OpenFilePanel: FC = () => {
   };
 
   return (
-    <Form autoComplete="off" onKeyPress={handleKeyPress}>
+    <Form onKeyPress={handleKeyPress}>
       <Content>
         <div>
           <IconButton
@@ -241,7 +241,6 @@ export const OpenFilePanel: FC = () => {
             </EnterPlaceholder>
           )}
         </InputRow>
-        {/*
         <SelectedFile>
           {selectedFileName && (
             <>
@@ -270,7 +269,6 @@ export const OpenFilePanel: FC = () => {
             </FileItemRow>
           ))}
         </List>
-          */}
       </Content>
     </Form>
   );
