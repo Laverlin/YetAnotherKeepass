@@ -26,11 +26,11 @@ export const EntryContextMenu: FC = () => {
   };
 
   const handleDeleteEntry = () => {
-    if (!contextMenuState.entry) return;
+    if (!contextMenuState.entry || !metadata?.isRecycleBinAvailable) return;
     setContextMenuState(closeItemContextMenu);
     setEntry(
       ItemHelper.apply(contextMenuState.entry, (e) => {
-        e.parentSid = metadata?.recycleBinSid;
+        e.parentSid = metadata.recycleBinSid;
         e.isRecycled = true;
       })
     );

@@ -1,5 +1,5 @@
 /* eslint-disable no-return-assign */
-import { AppBar, Box, IconButton, styled, Toolbar, Tooltip, Typography } from '@mui/material';
+import { AppBar, IconButton, styled, Toolbar, Tooltip, Typography } from '@mui/material';
 import { FC, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';

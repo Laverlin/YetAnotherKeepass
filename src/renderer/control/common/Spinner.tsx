@@ -53,17 +53,17 @@ const Arc = styled('div', {
   borderRadius: '50%',
   borderBottom: `3px solid ${color || '#4481C2'}`,
 
-  '&:nth-child(1)': {
+  '&:nth-of-type(1)': {
     animation: `${rotate1} 1.15s linear infinite`,
     animationDelay: '-0.8s',
   },
 
-  '&:nth-child(2)': {
+  '&:nth-of-type(2)': {
     animation: `${rotate2} 1.15s linear infinite`,
     animationDelay: '-0.4s',
   },
 
-  '&:nth-child(3)': {
+  '&:nth-of-type(3)': {
     animation: `${rotate3} 1.15s linear infinite`,
     animationDelay: '0s',
   },

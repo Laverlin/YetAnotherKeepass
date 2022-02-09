@@ -210,7 +210,12 @@ export class IpcDispatcher {
         IpcChannels.readKdbx,
         ReadKdbxResult.fromResult(
           items,
-          new YakpMetadata(kdbxFilePath, this.database.getDefaultGroup().uuid.id, database.meta.recycleBinUuid?.id),
+          new YakpMetadata(
+            kdbxFilePath,
+            this.database.getDefaultGroup().uuid.id,
+            this.database.meta.recycleBinUuid?.id,
+            !!this.database.meta.recycleBinEnabled
+          ),
           Array.from(this.database.meta.customIcons).map((i) => CustomIcon.fromKdbxIcon(i[0], i[1]))
         )
       );

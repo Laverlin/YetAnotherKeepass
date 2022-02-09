@@ -1,11 +1,13 @@
+import { KdbxUuid } from 'kdbxweb';
 import path from 'path';
 
 export class YakpMetadata {
-  constructor(kdbxFile: string, defaultGroupSid: string, recycleBin: string | undefined) {
+  constructor(kdbxFile: string, defaultGroupId: string, recycleId: string | undefined, recycleBinEnabled: boolean) {
     this.kdbxFile = kdbxFile;
-    this.defaultGroupSid = defaultGroupSid;
-    this.recycleBinSid = recycleBin;
+    this.defaultGroupSid = defaultGroupId;
+    this.recycleBinSid = recycleId;
     this.kdbxFileShort = path.basename(kdbxFile);
+    this.isRecycleBinAvailable = !!this.recycleBinSid && this.recycleBinSid !== new KdbxUuid().id && recycleBinEnabled;
   }
 
   kdbxFile: string = '';
@@ -15,4 +17,6 @@ export class YakpMetadata {
   defaultGroupSid: string = '';
 
   recycleBinSid: string | undefined;
+
+  isRecycleBinAvailable: boolean = false;
 }
