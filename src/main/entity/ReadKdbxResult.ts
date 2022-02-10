@@ -6,7 +6,7 @@ import { YakpMetadata } from './YakpMetadata';
 export class ReadKdbxResult {
   yakpKdbxItems: YakpKdbxItem[] = [];
 
-  yakpMetadata: YakpMetadata = new YakpMetadata('', '', undefined);
+  yakpMetadata: YakpMetadata = new YakpMetadata('', '', undefined, false);
 
   yakpError: YakpError | undefined;
 

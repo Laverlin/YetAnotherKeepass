@@ -113,24 +113,31 @@ export const OpenFilePanel: FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.electron.ipcRenderer.onSetting((s) => setSetting(s));
+    window.electron.ipcRenderer.onSetting((s) => {
+      setSetting(s);
+      if (s.recentFiles && s.recentFiles.length > 0) {
+        setInputFocus();
+        setFileName(s.recentFiles[0]);
+      }
+    });
     window.electron.ipcRenderer.getSetting();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFileSelect = (selectedFile: string) => {
     setFileName(selectedFile);
     setError('');
     setPassword('');
-    setInputFocus();
     setLoading(false);
+    setInputFocus();
   };
 
   const handleOpenFile = async () => {
     const fileName = await IpcMainOpenDialog();
     setFileName(fileName);
-    if (fileName) setInputFocus();
     setPassword('');
     setError('');
+    if (fileName) setInputFocus();
   };
 
   const updateRecentFiles = (file: string, isRemove = false) => {
@@ -178,7 +185,7 @@ export const OpenFilePanel: FC = () => {
   };
 
   return (
-    <Form autoComplete="off" onKeyPress={handleKeyPress}>
+    <Form onKeyPress={handleKeyPress}>
       <Content>
         <div>
           <IconButton
@@ -244,7 +251,12 @@ export const OpenFilePanel: FC = () => {
         </SelectedFile>
         <List>
           {setting?.recentFiles.map((file) => (
-            <FileItemRow button key={file} onClick={() => handleFileSelect(file)}>
+            <FileItemRow
+              button
+              key={file}
+              onClick={() => handleFileSelect(file)}
+              onSelect={() => handleFileSelect(file)}
+            >
               <ListItemIcon>
                 <SvgPath path={DefaultKeeIcon.database} />
               </ListItemIcon>

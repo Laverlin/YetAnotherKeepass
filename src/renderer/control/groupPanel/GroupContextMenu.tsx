@@ -41,6 +41,7 @@ export const GroupContextMenu: FC = () => {
   });
   const meta = useRecoilValue(yakpMetadataAtom);
   const setItemDelete = useRecoilCallback(({ set, snapshot }) => (deleted: YakpKdbxItem) => {
+    if (!meta?.isRecycleBinAvailable) return;
     const allItems = snapshot.getLoadable(allItemSelector).valueMaybe();
     const setChildDeleted = (parent: YakpKdbxItem) => {
       allItems
@@ -54,7 +55,7 @@ export const GroupContextMenu: FC = () => {
     set(
       yakpKdbxItemAtom(deleted.sid),
       ItemHelper.apply(deleted, (e) => {
-        e.parentSid = meta?.recycleBinSid;
+        e.parentSid = meta.recycleBinSid;
         e.isRecycled = true;
       })
     );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { List, styled } from '@mui/material';
 import { allItemsGroupSid } from 'main/entity/YakpKdbxItem';
 import { FC, ReactFragment } from 'react';
@@ -78,11 +79,11 @@ export const GroupPanel: FC = () => {
         </List>
       </OptionList>
 
-      <MainList isWithRecycle={!!metadata?.recycleBinSid}>{renderChildGroups(metadata.defaultGroupSid)}</MainList>
+      <MainList isWithRecycle={metadata.isRecycleBinAvailable}>{renderChildGroups(metadata.defaultGroupSid)}</MainList>
 
-      {!!metadata?.recycleBinSid && (
+      {metadata.isRecycleBinAvailable && (
         <RecycleBinItem>
-          <GroupItem itemSid={metadata.recycleBinSid} nestLevel={1} isContextMenuDisabled />
+          <GroupItem itemSid={metadata.recycleBinSid!} nestLevel={1} isContextMenuDisabled />
         </RecycleBinItem>
       )}
     </>

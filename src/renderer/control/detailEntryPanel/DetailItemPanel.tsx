@@ -125,7 +125,6 @@ export const DetailItemPanel: FC = () => {
   //
   const entrySid = useRecoilValue(selectItemSelector) || allItemsGroupSid;
   const [entry, setEntryState] = useRecoilState(yakpKdbxItemAtom(entrySid));
-  // const customIcon = useRecoilValue(yakpCustomIconSelector(entry.customIconSid || ''));
   const customIcon = useRecoilCallback(({ snapshot }) => (iconSid: string) => {
     return snapshot.getLoadable(yakpCustomIconSelector(iconSid)).valueMaybe();
   });
@@ -161,7 +160,6 @@ export const DetailItemPanel: FC = () => {
   // helpers
   //
   const fieldInfos = new Map<string, FieldInfo>([
-    // ['Title', { sortOrder: -5 } as FieldInfo],
     ['UserName', { sortOrder: -4 } as FieldInfo],
     ['Password', { sortOrder: -3, isProtected: true } as FieldInfo],
     ['URL', { sortOrder: -2 } as FieldInfo],
