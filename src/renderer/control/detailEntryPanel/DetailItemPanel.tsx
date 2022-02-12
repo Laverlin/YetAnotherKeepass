@@ -4,7 +4,12 @@ import { Autocomplete, Chip, IconButton, Input, styled, TextField, Tooltip, Typo
 import { allItemsGroupSid } from 'main/entity/YakpKdbxItem';
 import { FC } from 'react';
 import { useRecoilCallback, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { selectItemSelector, yakpCustomIconSelector, yakpKdbxItemAtom } from 'renderer/state/atom';
+import {
+  selectItemSelector,
+  yakpCustomIconSelector,
+  yakpHistoryItemsAtom,
+  yakpKdbxItemAtom,
+} from 'renderer/state/atom';
 import { DatePicker } from '@mui/lab';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { historyAtom } from 'renderer/state/historyAtom';
@@ -125,6 +130,7 @@ export const DetailItemPanel: FC = () => {
   //
   const entrySid = useRecoilValue(selectItemSelector) || allItemsGroupSid;
   const [entry, setEntryState] = useRecoilState(yakpKdbxItemAtom(entrySid));
+  const historyEntries = useRecoilValue(yakpHistoryItemsAtom(entry.sid));
   const customIcon = useRecoilCallback(({ snapshot }) => (iconSid: string) => {
     return snapshot.getLoadable(yakpCustomIconSelector(iconSid)).valueMaybe();
   });
@@ -166,7 +172,7 @@ export const DetailItemPanel: FC = () => {
     ['Notes', { sortOrder: 100, isMultiline: true } as FieldInfo],
   ]);
 
-  const entryView = historyState.isInHistory ? entry.history[historyState.historyIndex] : entry;
+  const entryView = historyState.isInHistory ? historyEntries[historyState.historyIndex] : entry;
 
   return (
     <form noValidate autoComplete="off">

@@ -17,7 +17,7 @@ import { IpcMainOpenDialog, IpcMainReadKdbx } from 'main/IpcCommunication/IpcExt
 import { FC, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
-import { allItemSelector, yakpCustomIconsAtom, yakpMetadataAtom } from 'renderer/state/atom';
+import { allHistoryItemsSelector, allItemSelector, yakpCustomIconsAtom, yakpMetadataAtom } from 'renderer/state/atom';
 import { DefaultKeeIcon } from '../entity/DefaultKeeIcon';
 import { SystemIcon } from '../entity/SystemIcon';
 import { Spinner } from './common/Spinner';
@@ -107,6 +107,7 @@ export const OpenFilePanel: FC = () => {
   const [setting, setSetting] = useState<RenderSetting | undefined>(undefined);
 
   const setItems = useSetRecoilState(allItemSelector);
+  const setHistoryItems = useSetRecoilState(allHistoryItemsSelector);
   const setMetadata = useSetRecoilState(yakpMetadataAtom);
   const setCustomIcons = useSetRecoilState(yakpCustomIconsAtom);
 
@@ -169,9 +170,11 @@ export const OpenFilePanel: FC = () => {
       updateRecentFiles(readKdbxResult.yakpMetadata.kdbxFile);
 
       const items = readKdbxResult.yakpKdbxItems.map((i) => ItemHelper.fromSerialized(i));
+      const historyItems = readKdbxResult.yakpHistoryItems.map((i) => ItemHelper.fromSerializedHistory(i));
 
       setMetadata(readKdbxResult.yakpMetadata);
       setCustomIcons(readKdbxResult.customIcons);
+      setHistoryItems(historyItems);
       setItems(items);
       navigate('/app');
     }

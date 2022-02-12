@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { IconButton, styled, Tooltip, Typography } from '@mui/material';
-import { ItemHelper } from 'main/entity/ItemHelper';
+import { DeletedEntry } from 'main/entity/DeletedEntry';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { FC, useEffect } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { yakpKdbxItemAtom } from 'renderer/state/atom';
+import { deletedEntriesAtom, isDbChangedAtom, yakpHistoryItemsAtom } from 'renderer/state/atom';
 import { historyAtom } from 'renderer/state/historyAtom';
 import { SvgPath } from '../common/SvgPath';
 
@@ -50,9 +50,11 @@ interface IProps {
 
 export const DetailToolbar: FC<IProps> = ({ entry }) => {
   const [historyState, setHistoryState] = useRecoilState(historyAtom(entry.sid));
-  const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
+  const [historyEntries, setHistoryEntries] = useRecoilState(yakpHistoryItemsAtom(entry.sid));
+  const setDeletedEntries = useSetRecoilState(deletedEntriesAtom);
+  const setDbChanged = useSetRecoilState(isDbChangedAtom);
 
-  const totalVersions = entry.history.length;
+  const totalVersions = historyEntries.length;
   const isLast = totalVersions === historyState.historyIndex;
   const isFirst = historyState.historyIndex === 0;
 
@@ -62,17 +64,18 @@ export const DetailToolbar: FC<IProps> = ({ entry }) => {
 
   const handleIndexChanged = (newIndex: number) => {
     if (newIndex < 0 || newIndex > totalVersions) return;
-
     setHistoryState({ isInHistory: newIndex !== totalVersions, historyIndex: newIndex });
   };
 
   const handleDeleteVersion = (index: number) => {
     if (index === totalVersions - 1) setHistoryState({ isInHistory: false, historyIndex: index });
-    setEntryState(ItemHelper.apply(entry, (e) => e.history.splice(index, 1)));
+    setDeletedEntries((cur) => cur.concat([new DeletedEntry(entry.sid, historyEntries[index].historyIndex)]));
+    setHistoryEntries((cur) => [...cur.slice(0, index), ...cur.slice(index + 1)]);
+    setDbChanged(true);
   };
 
   const modifiedTime = new Date(
-    !isLast ? entry.history[historyState.historyIndex].lastModifiedTime : entry.lastModifiedTime
+    !isLast ? historyEntries[historyState.historyIndex].lastModifiedTime : entry.lastModifiedTime
   ).toDateString();
 
   return (

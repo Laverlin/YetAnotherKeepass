@@ -67,12 +67,12 @@ export class IpcDispatcher {
       // delete removed icons
       //
       kdbxIcons.forEach((_, key) => {
-        if (!changes.Icons.find((i) => i.key === key)) kdbxIcons.delete(key);
+        if (!changes.icons.find((i) => i.key === key)) kdbxIcons.delete(key);
       });
 
       // add new icons
       //
-      changes.Icons.forEach((i) => {
+      changes.icons.forEach((i) => {
         if (!kdbxIcons.has(i.key)) {
           const iconData: KdbxCustomIcon = {
             name: i.key,
@@ -82,19 +82,31 @@ export class IpcDispatcher {
         }
       });
 
+      // update items history
+      //
+      const entries = Array.from(kdb.getDefaultGroup().allEntries());
+      [...new Set(changes.deletedEntries.map((i) => i.entrySid))]
+        .map((i) => entries.find((e) => e.uuid.id === i))
+        .forEach((ki) =>
+          changes.deletedEntries.filter((di) => di.entrySid).forEach((di) => ki?.removeHistory(di.deletedIndex))
+        );
+
       // update item data
       //
-      changes.Items.filter((i) => i.isChanged)
+      changes.items
+        .filter((i) => i.isChanged)
         .map((i) => ItemHelper.fromSerialized(i))
         .forEach((i) => {
-          ItemHelper.toKdbx(i, kdb, changes.Items);
+          ItemHelper.toKdbx(i, kdb, changes.items);
         });
 
       // update order in changed group
       //
-      changes.Items.filter((i) => i.isChanged && i.isGroup && i.parentSid).forEach((i) => {
-        ItemHelper.reorderSiblings(i.parentSid || '', changes.Items, kdb);
-      });
+      changes.items
+        .filter((i) => i.isChanged && i.isGroup && i.parentSid)
+        .forEach((i) => {
+          ItemHelper.reorderSiblings(i.parentSid || '', changes.items, kdb);
+        });
 
       // save db to disk
       //
@@ -206,10 +218,15 @@ export class IpcDispatcher {
         ItemHelper.fromKdbx(i, database)
       );
 
+      const historyItems = Array.from(database.getDefaultGroup().allEntries())
+        .map((e) => e.history.map((h, index) => ItemHelper.fromKdbxHistory(h, index)))
+        .flat();
+
       event.reply(
         IpcChannels.readKdbx,
         ReadKdbxResult.fromResult(
           items,
+          historyItems,
           new YakpMetadata(
             kdbxFilePath,
             this.database.getDefaultGroup().uuid.id,

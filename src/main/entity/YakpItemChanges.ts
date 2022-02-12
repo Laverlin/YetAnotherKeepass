@@ -1,8 +1,11 @@
 import { CustomIcon } from './CustomIcon';
+import { DeletedEntry } from './DeletedEntry';
 import { YakpKdbxItem } from './YakpKdbxItem';
 
 export class YakpItemChanges {
-  Items: YakpKdbxItem[] = [];
+  items: YakpKdbxItem[] = [];
 
-  Icons: CustomIcon[] = [];
+  icons: CustomIcon[] = [];
+
+  deletedEntries: DeletedEntry[] = [];
 }

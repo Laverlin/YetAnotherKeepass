@@ -4,7 +4,13 @@ import { FC, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { SystemCommand } from '../../../main/IpcCommunication/IpcDispatcher';
-import { allItemSelector, isDbSavedSelector, yakpCustomIconsAtom, yakpMetadataAtom } from '../../state/atom';
+import {
+  allItemSelector,
+  deletedEntriesAtom,
+  isDbSavedSelector,
+  yakpCustomIconsAtom,
+  yakpMetadataAtom,
+} from '../../state/atom';
 import {
   closePanel,
   ConfirmationChoice,
@@ -90,6 +96,7 @@ export const AppToolbar: FC = () => {
 
   const allIcons = useRecoilValue(yakpCustomIconsAtom);
   const allItems = useRecoilValue(allItemSelector);
+  const deletedEntries = useRecoilValue(deletedEntriesAtom);
 
   const resolver = useRef<{ resolve: (choice: ConfirmationChoice) => void }>();
 
@@ -110,8 +117,9 @@ export const AppToolbar: FC = () => {
   const handleSave = async () => {
     setLoader(true);
     const changes = new YakpItemChanges();
-    changes.Icons = allIcons;
-    changes.Items = allItems;
+    changes.icons = allIcons;
+    changes.items = allItems;
+    changes.deletedEntries = deletedEntries;
     const saveResult = await IpcMainSaveChanges(changes);
     setNotification(`DB save is ${saveResult ? 'successful' : 'unsuccessful'}`);
     setDbSaved(true);
