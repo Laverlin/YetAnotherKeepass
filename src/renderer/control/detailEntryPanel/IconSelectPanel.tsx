@@ -7,7 +7,7 @@ import { FC, useState } from 'react';
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil';
 import { DefaultKeeIcon } from 'renderer/entity/DefaultKeeIcon';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { allItemSelector, yakpCustomIconsAtom, yakpKdbxItemAtom } from 'renderer/state/atom';
+import { allItemSelector, isDbChangedAtom, yakpCustomIconsAtom, yakpKdbxItemAtom } from 'renderer/state/atom';
 import { closePanel, iconChoisePanelAtom } from 'renderer/state/panelStateAtom';
 import { SvgPath } from '../common/SvgPath';
 
@@ -102,6 +102,7 @@ export const IconSelectPanel: FC<IProps> = ({ entry }) => {
   //
   const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
   const [panelState, setPanelState] = useRecoilState(iconChoisePanelAtom);
+  const SetDbChanged = useSetRecoilState(isDbChangedAtom);
   const dropIcon = useRecoilCallback(({ set, snapshot }) => (iconSid: string) => {
     snapshot
       .getLoadable(allItemSelector)
@@ -175,7 +176,10 @@ export const IconSelectPanel: FC<IProps> = ({ entry }) => {
 
   const handleAddCustomIcon = async () => {
     const icon = await IpcMainLoadIcon();
-    if (icon) setIcons(icons.concat(icon));
+    if (icon) {
+      setIcons(icons.concat(icon));
+      SetDbChanged(true);
+    }
   };
 
   const handleSelectIcon = (iconId: string) => {
@@ -201,6 +205,7 @@ export const IconSelectPanel: FC<IProps> = ({ entry }) => {
     selectedIcons.forEach(dropIcon);
     setIcons(icons.filter((icon) => !selectedIcons.includes(icon.key)));
     setSelectedIcons([]);
+    SetDbChanged(true);
   };
 
   return (

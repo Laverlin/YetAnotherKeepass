@@ -1,10 +1,13 @@
 import { CustomIcon } from './CustomIcon';
 import { YakpError } from './YakpError';
+import { YakpHistoryItem } from './YakpHistoryItem';
 import { YakpKdbxItem } from './YakpKdbxItem';
 import { YakpMetadata } from './YakpMetadata';
 
 export class ReadKdbxResult {
   yakpKdbxItems: YakpKdbxItem[] = [];
+
+  yakpHistoryItems: YakpHistoryItem[] = [];
 
   yakpMetadata: YakpMetadata = new YakpMetadata('', '', undefined, false);
 
@@ -18,9 +21,15 @@ export class ReadKdbxResult {
     return result;
   }
 
-  static fromResult(yakpKdbxItems: YakpKdbxItem[], metadata: YakpMetadata, customIcons: CustomIcon[]) {
+  static fromResult(
+    yakpKdbxItems: YakpKdbxItem[],
+    yakpHistoryItems: YakpHistoryItem[],
+    metadata: YakpMetadata,
+    customIcons: CustomIcon[]
+  ) {
     const result = new ReadKdbxResult();
     result.yakpKdbxItems = yakpKdbxItems;
+    result.yakpHistoryItems = yakpHistoryItems;
     result.yakpMetadata = metadata;
     result.customIcons = customIcons;
     return result;

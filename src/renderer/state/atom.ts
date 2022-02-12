@@ -1,5 +1,7 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import { DeletedEntry } from 'main/entity/DeletedEntry';
+import { YakpHistoryItem } from 'main/entity/YakpHistoryItem';
 import { atom, atomFamily, DefaultValue, selector, selectorFamily } from 'recoil';
 import { CustomIcon } from '../../main/entity/CustomIcon';
 import { ItemHelper } from '../../main/entity/ItemHelper';
@@ -30,7 +32,7 @@ export const allItemSelector = selector<YakpKdbxItem[]>({
 
     // reset previous state
     //
-    get(yakpKdbxItemAtomIds).map((i) => reset(yakpKdbxItemAtom(i)));
+    get(yakpKdbxItemAtomIds).forEach((i) => reset(yakpKdbxItemAtom(i)));
     reset(yakpKdbxItemAtomIds);
 
     // set new state
@@ -41,6 +43,34 @@ export const allItemSelector = selector<YakpKdbxItem[]>({
       items.map((i) => i.sid)
     );
   },
+});
+
+export const yakpHistoryItemsAtom = atomFamily<YakpHistoryItem[], string>({
+  key: 'yakpHistoryItemsAtom',
+  default: () => [],
+});
+
+export const allHistoryItemsSelector = selector<YakpHistoryItem[]>({
+  key: 'allHistoryItemSelector',
+  get: ({ get }) =>
+    get(yakpKdbxItemAtomIds).reduce((acc, i) => acc.concat(get(yakpHistoryItemsAtom(i))), [] as YakpHistoryItem[]),
+  set: ({ set, get, reset }, items) => {
+    if (items instanceof DefaultValue) return;
+
+    get(yakpKdbxItemAtomIds).forEach((i) => reset(yakpHistoryItemsAtom(i)));
+
+    [...new Set(items.map((i) => i.sid))].forEach((i) =>
+      set(
+        yakpHistoryItemsAtom(i),
+        items.filter((h) => h.sid === i)
+      )
+    );
+  },
+});
+
+export const deletedEntriesAtom = atom<DeletedEntry[]>({
+  key: 'deletedEntriesAtom',
+  default: [],
 });
 
 export const groupStatSelector = selectorFamily<GroupStatistic, string>({
@@ -147,14 +177,20 @@ export const yakpCustomIconSelector = selectorFamily<CustomIcon | undefined, str
       get(yakpCustomIconsAtom).find((i) => i.key === sid),
 });
 
+export const isDbChangedAtom = atom<boolean>({
+  key: 'isDbSavedAtom',
+  default: false,
+});
+
 export const isDbSavedSelector = selector<boolean>({
   key: 'isDbSavedSelector',
   get: ({ get }) => {
-    return !!get(allItemSelector).find((i) => i.isChanged);
+    return !!get(allItemSelector).find((i) => i.isChanged) || get(isDbChangedAtom);
   },
   set: ({ get, set }) => {
     get(allItemSelector)
       .filter((i) => i.isChanged)
       .forEach((i) => set(yakpKdbxItemAtom(i.sid), (cur) => ItemHelper.apply(cur, (e) => (e.isChanged = false))));
+    set(isDbChangedAtom, false);
   },
 });

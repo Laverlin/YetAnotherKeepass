@@ -1,4 +1,5 @@
 import { Kdbx, KdbxEntry, KdbxEntryField, KdbxGroup, KdbxUuid, ProtectedValue } from 'kdbxweb';
+import { YakpHistoryItem } from './YakpHistoryItem';
 import { YakpKdbxItem } from './YakpKdbxItem';
 
 export class ItemHelper {
@@ -44,18 +45,21 @@ export class ItemHelper {
       item.fields[f] =
         !!field.salt && !!field.value ? new ProtectedValue(field.value, field.salt) : serializedItem.fields[f];
     });
-    item.history = [...serializedItem.history];
     item.binaries = [...serializedItem.binaries];
     return item;
   }
 
-  static fromKdbx(kdbxItem: KdbxEntry | KdbxGroup, database: Kdbx) {
+  static fromSerializedHistory(serializedItem: YakpHistoryItem) {
+    return this.fromSerialized(serializedItem) as YakpHistoryItem;
+  }
+
+  static fromKdbx(kdbxItem: KdbxEntry | KdbxGroup, database?: Kdbx) {
     const item = new YakpKdbxItem();
     item.sid = kdbxItem.uuid.id;
     item.parentSid = kdbxItem.parentGroup?.uuid.id;
     item.isGroup = kdbxItem instanceof KdbxGroup;
-    item.isDefaultGroup = database.getDefaultGroup().uuid.equals(kdbxItem.uuid);
-    item.isRecycleBin = kdbxItem.uuid.equals(database.meta.recycleBinUuid);
+    item.isDefaultGroup = database?.getDefaultGroup().uuid.equals(kdbxItem.uuid) || false;
+    item.isRecycleBin = kdbxItem.uuid.equals(database?.meta.recycleBinUuid);
     item.title = (kdbxItem instanceof KdbxGroup ? kdbxItem.name : kdbxItem.fields.get('Title'))?.toString() || '';
     item.defaultIconId = kdbxItem.icon || 0;
     item.isExpires = kdbxItem.times.expires || false;
@@ -77,14 +81,16 @@ export class ItemHelper {
       item.fields.Notes = (kdbxItem as KdbxGroup).notes || '';
     }
 
-    item.isRecycled = this.checkIfRecycled(kdbxItem, database.meta.recycleBinUuid);
+    item.isRecycled = !!database && this.checkIfRecycled(kdbxItem, database.meta.recycleBinUuid);
     if (item.isGroup)
       item.groupSortOrder = kdbxItem.parentGroup?.groups.findIndex((i) => i.uuid.equals(kdbxItem.uuid)) || 0;
 
-    if (kdbxItem instanceof KdbxEntry) {
-      kdbxItem.history.forEach((i) => item.history.push(this.fromKdbx(i, database)));
-    }
+    return item;
+  }
 
+  static fromKdbxHistory(kdbxEntry: KdbxEntry, index: number) {
+    const item = this.fromKdbx(kdbxEntry) as YakpHistoryItem;
+    item.historyIndex = index;
     return item;
   }
 
