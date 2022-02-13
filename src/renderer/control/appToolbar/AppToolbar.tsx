@@ -6,6 +6,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { SystemCommand } from '../../../main/IpcCommunication/IpcDispatcher';
 import {
   allItemSelector,
+  deletedBinaryAtom as deletedBinariesAtom,
   deletedEntriesAtom,
   isDbSavedSelector,
   yakpCustomIconsAtom,
@@ -97,6 +98,7 @@ export const AppToolbar: FC = () => {
   const allIcons = useRecoilValue(yakpCustomIconsAtom);
   const allItems = useRecoilValue(allItemSelector);
   const deletedEntries = useRecoilValue(deletedEntriesAtom);
+  const deletedBinaries = useRecoilValue(deletedBinariesAtom);
 
   const resolver = useRef<{ resolve: (choice: ConfirmationChoice) => void }>();
 
@@ -120,8 +122,13 @@ export const AppToolbar: FC = () => {
     changes.icons = allIcons;
     changes.items = allItems;
     changes.deletedEntries = deletedEntries;
+    changes.deletedBinaries = deletedBinaries;
     const saveResult = await IpcMainSaveChanges(changes);
-    setNotification(`DB save is ${saveResult ? 'successful' : 'unsuccessful'}`);
+    setNotification(
+      `DB save is ${
+        saveResult.isSuccess ? `Success: ${saveResult.itemsUpdated} updated` : `error: ${saveResult.errorMessage}`
+      }`
+    );
     setDbSaved(true);
     setLoader(false);
   };

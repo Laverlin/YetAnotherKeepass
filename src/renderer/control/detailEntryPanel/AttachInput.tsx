@@ -1,12 +1,13 @@
 /* eslint-disable no-return-assign */
 import { Chip, IconButton, styled, Tooltip, Typography } from '@mui/material';
+import { BinariesChange } from 'main/entity/BinariesChange';
 import { ItemHelper } from 'main/entity/ItemHelper';
 import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { IpcMainAddAttechments } from 'main/IpcCommunication/IpcExtention';
 import { FC } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { yakpKdbxItemAtom } from 'renderer/state/atom';
+import { deletedBinaryAtom, yakpKdbxItemAtom } from 'renderer/state/atom';
 import { SvgPath } from '../common/SvgPath';
 
 const Outlined = styled('div', {
@@ -73,6 +74,7 @@ interface IProps {
 
 export const AttachInput: FC<IProps> = ({ entry, disabled }) => {
   const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
+  const setDeletedBinary = useSetRecoilState(deletedBinaryAtom);
 
   const handleAddAttachment = async () => {
     const attachments = await IpcMainAddAttechments(entry.sid);
@@ -81,6 +83,7 @@ export const AttachInput: FC<IProps> = ({ entry, disabled }) => {
 
   const handleDeleteAttachment = (key: string) => {
     setEntryState(ItemHelper.apply(entry, (e) => (e.binaries = e.binaries.filter((f) => f !== key))));
+    setDeletedBinary((cur) => cur.concat([new BinariesChange(entry.sid, key)]));
   };
 
   const handleSaveAttachment = async (key: string) => {
