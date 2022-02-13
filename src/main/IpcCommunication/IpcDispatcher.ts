@@ -23,6 +23,7 @@ import { YakpMetadata } from '../entity/YakpMetadata';
 import { CustomIcon } from '../entity/CustomIcon';
 import { YakpItemChanges } from '../entity/YakpItemChanges';
 import { ItemHelper } from '../entity/ItemHelper';
+import { BinariesChange } from '../entity/BinariesChange';
 
 export type SystemCommand = 'minimize' | 'maximize' | 'restore' | 'exit' | 'openUrl';
 
@@ -32,6 +33,8 @@ export class IpcDispatcher {
   private database: Kdbx | undefined;
 
   private kdbxFilePath: string | undefined;
+
+  private binariesChange: BinariesChange[] = [];
 
   constructor(yaKeepassSetting: YaKeepassSetting) {
     this.yaKeepassSetting = yaKeepassSetting;
@@ -84,7 +87,7 @@ export class IpcDispatcher {
 
       // update items history
       //
-      const entries = Array.from(kdb.getDefaultGroup().allEntries());
+      let entries = Array.from(kdb.getDefaultGroup().allEntries());
       [...new Set(changes.deletedEntries.map((i) => i.entrySid))]
         .map((i) => entries.find((e) => e.uuid.id === i))
         .forEach((ki) =>
@@ -99,6 +102,18 @@ export class IpcDispatcher {
         .forEach((i) => {
           ItemHelper.toKdbx(i, kdb, changes.items);
         });
+
+      // update binary data
+      //
+      entries = Array.from(kdb.getDefaultGroup().allEntries());
+      this.binariesChange.forEach((c) => {
+        const entry = entries.find((e) => e.uuid.id === c.entrySid);
+        if (c.data && entry) entry.binaries.set(c.name, c.data);
+      });
+      changes.deletedBinaries.forEach((b) => {
+        const entry = entries.find((e) => e.uuid.id === b.entrySid);
+        entry?.binaries.delete(b.name);
+      });
 
       // update order in changed group
       //
@@ -149,30 +164,28 @@ export class IpcDispatcher {
         event.reply(IpcChannels.attachemnt);
         return;
       }
+
       const attachments: string[] = [];
-      const kdbxEntry = this.database?.getDefaultGroup().entries.find((e) => e.uuid.id === entrySid);
-      if (kdbxEntry) {
-        kdbxEntry.times.update();
-        kdbxEntry.pushHistory();
-        files.forEach((file) => {
-          const buffer = fs.readFileSync(file);
-          const binary: KdbxBinary = new Uint8Array(buffer).buffer;
-          attachments.push(path.basename(file));
-          kdbxEntry.binaries.set(path.basename(file), binary);
-        });
-      }
+      files.forEach((file) => {
+        const binary: KdbxBinary = Buffer.from(fs.readFileSync(file));
+        this.binariesChange.push(new BinariesChange(entrySid, path.basename(file), binary));
+        attachments.push(path.basename(file));
+      });
       event.reply(IpcChannels.attachemnt, attachments);
     } else {
       const filePath = dialog.showSaveDialogSync({ defaultPath: key });
-      if (!filePath) return;
+      if (!filePath || !this.database) return;
 
-      const kdbxEntry = this.database?.getDefaultGroup().entries.find((e) => e.uuid.id === entrySid);
+      const kdbxEntry = Array.from(this.database.getDefaultGroup().allEntries()).find((e) => e.uuid.id === entrySid);
       let buffer = kdbxEntry?.binaries.get(key);
-      if (!buffer) return;
+      if (!buffer) {
+        buffer = this.binariesChange.find((f) => f.name === key && f.entrySid === entrySid)?.data;
+        if (!buffer) return;
+      }
 
       buffer = (buffer as KdbxBinaryWithHash).value ? (buffer as KdbxBinaryWithHash).value : (buffer as KdbxBinary);
       const data = buffer instanceof ProtectedValue ? buffer.getBinary() : buffer;
-      fs.writeFileSync(filePath, new Uint8Array(data));
+      fs.writeFileSync(filePath, Buffer.from(data));
     }
   }
 

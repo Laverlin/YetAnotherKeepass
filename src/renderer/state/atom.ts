@@ -1,5 +1,6 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import { BinariesChange } from 'main/entity/BinariesChange';
 import { DeletedEntry } from 'main/entity/DeletedEntry';
 import { YakpHistoryItem } from 'main/entity/YakpHistoryItem';
 import { atom, atomFamily, DefaultValue, selector, selectorFamily } from 'recoil';
@@ -193,4 +194,9 @@ export const isDbSavedSelector = selector<boolean>({
       .forEach((i) => set(yakpKdbxItemAtom(i.sid), (cur) => ItemHelper.apply(cur, (e) => (e.isChanged = false))));
     set(isDbChangedAtom, false);
   },
+});
+
+export const deletedBinaryAtom = atom<BinariesChange[]>({
+  key: 'deletedBinaryAtom',
+  default: [],
 });
