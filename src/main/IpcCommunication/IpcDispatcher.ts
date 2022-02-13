@@ -24,6 +24,7 @@ import { CustomIcon } from '../entity/CustomIcon';
 import { YakpItemChanges } from '../entity/YakpItemChanges';
 import { ItemHelper } from '../entity/ItemHelper';
 import { BinariesChange } from '../entity/BinariesChange';
+import { SaveState } from '../entity/SaveState';
 
 export type SystemCommand = 'minimize' | 'maximize' | 'restore' | 'exit' | 'openUrl';
 
@@ -127,10 +128,15 @@ export class IpcDispatcher {
       //
       const db = await this.database.save();
       fs.writeFileSync(this.kdbxFilePath, Buffer.from(db));
-      event.reply(IpcChannels.changes, true);
+      const status = new SaveState(true);
+      status.itemsUpdated = changes.items.length;
+      status.binariesAdded = this.binariesChange.length;
+      status.binariesDeleted = changes.deletedBinaries.length;
+      event.reply(IpcChannels.changes, status);
     } catch (e) {
-      console.log(e);
-      event.reply(IpcChannels.changes, false);
+      const status = new SaveState(false);
+      status.errorMessage = (e as Error).message;
+      event.reply(IpcChannels.changes, status);
     }
   }
 

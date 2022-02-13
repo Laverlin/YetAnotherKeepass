@@ -124,7 +124,11 @@ export const AppToolbar: FC = () => {
     changes.deletedEntries = deletedEntries;
     changes.deletedBinaries = deletedBinaries;
     const saveResult = await IpcMainSaveChanges(changes);
-    setNotification(`DB save is ${saveResult ? 'successful' : 'unsuccessful'}`);
+    setNotification(
+      `DB save is ${
+        saveResult.isSuccess ? `Success: ${saveResult.itemsUpdated} updated` : `error: ${saveResult.errorMessage}`
+      }`
+    );
     setDbSaved(true);
     setLoader(false);
   };
