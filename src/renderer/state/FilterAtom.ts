@@ -86,7 +86,9 @@ export const filteredIdsSelector = selector<string[]>({
           item.fields[i] instanceof ProtectedValue
             ? (item.fields[i] as ProtectedValue).getText().toLocaleLowerCase().includes(normalizedQuery)
             : (item.fields[i] as string).toLocaleLowerCase().includes(normalizedQuery)
-        ) || !!item.tags.find((t) => t.toLocaleLowerCase().includes(normalizedQuery))
+        ) ||
+        !!item.tags.find((t) => t.toLocaleLowerCase().includes(normalizedQuery)) ||
+        item.title.toLocaleLowerCase().includes(normalizedQuery)
       );
     };
 
