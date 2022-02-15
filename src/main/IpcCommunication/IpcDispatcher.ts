@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable class-methods-use-this */
 import fs from 'fs';
 import { BrowserWindow, dialog, ipcMain, IpcMainEvent, shell } from 'electron';
@@ -100,17 +102,20 @@ export class IpcDispatcher {
       changes.items
         .filter((i) => i.isChanged)
         .map((i) => ItemHelper.fromSerialized(i))
-        .forEach((i) => {
-          ItemHelper.toKdbx(i, kdb, changes.items);
-        });
+        .forEach((i) => ItemHelper.toKdbx(i, kdb, changes.items));
 
       // update binary data
       //
       entries = Array.from(kdb.getDefaultGroup().allEntries());
-      this.binariesChange.forEach((c) => {
-        const entry = entries.find((e) => e.uuid.id === c.entrySid);
-        if (c.data && entry) entry.binaries.set(c.name, c.data);
-      });
+      for (const rawBinary of this.binariesChange) {
+        const entry = entries.find((e) => e.uuid.id === rawBinary.entrySid);
+        if (rawBinary.data && entry) {
+          const binary = await kdb.createBinary(rawBinary.data);
+          entry.binaries.set(rawBinary.name, binary);
+        }
+      }
+      this.binariesChange = [];
+
       changes.deletedBinaries.forEach((b) => {
         const entry = entries.find((e) => e.uuid.id === b.entrySid);
         entry?.binaries.delete(b.name);
@@ -129,7 +134,7 @@ export class IpcDispatcher {
       const db = await this.database.save();
       fs.writeFileSync(this.kdbxFilePath, Buffer.from(db));
       const status = new SaveState(true);
-      status.itemsUpdated = changes.items.length;
+      status.itemsUpdated = changes.items.filter((i) => i.isChanged).length;
       status.binariesAdded = this.binariesChange.length;
       status.binariesDeleted = changes.deletedBinaries.length;
       event.reply(IpcChannels.changes, status);
@@ -173,7 +178,7 @@ export class IpcDispatcher {
 
       const attachments: string[] = [];
       files.forEach((file) => {
-        const binary: KdbxBinary = Buffer.from(fs.readFileSync(file));
+        const binary = fs.readFileSync(file);
         this.binariesChange.push(new BinariesChange(entrySid, path.basename(file), binary));
         attachments.push(path.basename(file));
       });

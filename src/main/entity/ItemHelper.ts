@@ -103,10 +103,12 @@ export class ItemHelper {
         ? database.createGroup(this.getParent(yakpItem, allKdbxItems, items, database), yakpItem.title)
         : database.createEntry(this.getParent(yakpItem, allKdbxItems, items, database));
       kdbxItem.uuid = new KdbxUuid(yakpItem.sid);
+    } else {
+      kdbxItem.times.update();
+      if (kdbxItem instanceof KdbxEntry) kdbxItem.pushHistory();
     }
-    kdbxItem.times.update();
+
     if (kdbxItem instanceof KdbxEntry) {
-      kdbxItem.pushHistory();
       kdbxItem.bgColor = yakpItem.bgColor;
       const fieldMap = new Map<string, KdbxEntryField>();
       Object.keys(yakpItem.fields).forEach((key) => fieldMap.set(key, yakpItem.fields[key]));
