@@ -121,6 +121,18 @@ export class IpcDispatcher {
         entry?.binaries.delete(b.name);
       });
 
+      // update binary data
+      //
+      entries = Array.from(kdb.getDefaultGroup().allEntries());
+      this.binariesChange.forEach((c) => {
+        const entry = entries.find((e) => e.uuid.id === c.entrySid);
+        if (c.data && entry) entry.binaries.set(c.name, c.data);
+      });
+      changes.deletedBinaries.forEach((b) => {
+        const entry = entries.find((e) => e.uuid.id === b.entrySid);
+        entry?.binaries.delete(b.name);
+      });
+
       // update order in changed group
       //
       changes.items
