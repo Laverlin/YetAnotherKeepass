@@ -7,7 +7,6 @@ import { RecoilRoot } from 'recoil';
 import { MainFrame } from './control/MainFrame';
 import { OpenFilePanel } from './control/OpenFilePanel';
 import { MainLayout } from './control/MainLayout';
-import GlobalObserver from './state/GlobalObserver';
 
 const appTheme = createTheme({
   components: {
@@ -52,7 +51,7 @@ const appTheme = createTheme({
 
 render(
   <RecoilRoot>
-    <GlobalObserver />
+    {/* <GlobalObserver /> */}
     <React.StrictMode>
       <ThemeProvider theme={appTheme}>
         <CssBaseline />
