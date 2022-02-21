@@ -2,7 +2,7 @@ import { YakpHistoryItem } from 'main/entity/YakpHistoryItem';
 import { atomFamily, DefaultValue, selector, selectorFamily } from 'recoil';
 import { atomHistoryItems } from './atomHistory';
 import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from '../../main/entity/YakpKdbxItem';
-import { atomAllItemIds } from '.';
+import { atomAllItemIds } from './atomAllItemIds';
 
 const atomYakpItem = atomFamily<YakpKdbxItem, string>({
   key: 'atomYakpItem',
@@ -25,9 +25,7 @@ export const selectorYakpItem = selectorFamily<YakpKdbxItem, string>({
         return newValue;
       });
       if (oldValue && !oldValue.isChanged && newValue.isChanged)
-        set(atomHistoryItems(sid), (cur) =>
-          cur.concat([{ ...oldValue, historyIndex: cur.length } as YakpHistoryItem])
-        );
+        set(atomHistoryItems(sid), (cur) => cur.concat([{ ...oldValue, historyIndex: cur.length } as YakpHistoryItem]));
     },
 });
 
