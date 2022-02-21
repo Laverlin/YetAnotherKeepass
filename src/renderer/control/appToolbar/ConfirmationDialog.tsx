@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { FC } from 'react';
 import { useRecoilState } from 'recoil';
-import { closePanel, ConfirmationChoice, confirmationDialogAtom } from '../../state/panelStateAtom';
+import { closePanel, ConfirmationChoice, confirmationDialogAtom } from '../../state/atomPanelState';
 
 interface IProp {
   resolver: React.MutableRefObject<{ resolve: (choice: ConfirmationChoice) => void } | undefined>;

@@ -5,8 +5,7 @@ import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { FC, useEffect } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { deletedEntriesAtom, isDbChangedAtom, yakpHistoryItemsAtom } from 'renderer/state/atom';
-import { historyAtom } from 'renderer/state/historyAtom';
+import { atomHistory, atomDeletedEntries, atomDbChange, atomHistoryItems } from '../../state';
 import { SvgPath } from '../common/SvgPath';
 
 const BottomBar = styled('div')(({ theme }) => ({
@@ -49,10 +48,10 @@ interface IProps {
 }
 
 export const DetailToolbar: FC<IProps> = ({ entry }) => {
-  const [historyState, setHistoryState] = useRecoilState(historyAtom(entry.sid));
-  const [historyEntries, setHistoryEntries] = useRecoilState(yakpHistoryItemsAtom(entry.sid));
-  const setDeletedEntries = useSetRecoilState(deletedEntriesAtom);
-  const setDbChanged = useSetRecoilState(isDbChangedAtom);
+  const [historyState, setHistoryState] = useRecoilState(atomHistory(entry.sid));
+  const [historyEntries, setHistoryEntries] = useRecoilState(atomHistoryItems(entry.sid));
+  const setDeletedEntries = useSetRecoilState(atomDeletedEntries);
+  const setDbChanged = useSetRecoilState(atomDbChange);
 
   const totalVersions = historyEntries.length;
   const isLast = totalVersions === historyState.historyIndex;
@@ -60,7 +59,11 @@ export const DetailToolbar: FC<IProps> = ({ entry }) => {
 
   useEffect(() => {
     setHistoryState({ historyIndex: totalVersions, isInHistory: false });
-  }, [entry.sid /* , totalVersions */]);
+  }, [entry.sid]);
+
+  useEffect(() => {
+    if (!historyState.isInHistory) setHistoryState({ historyIndex: totalVersions, isInHistory: false });
+  }, [totalVersions]);
 
   const handleIndexChanged = (newIndex: number) => {
     if (newIndex < 0 || newIndex > totalVersions) return;

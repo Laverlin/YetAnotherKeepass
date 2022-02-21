@@ -3,10 +3,16 @@ import { styled, ListItemText, IconButton } from '@mui/material';
 import React, { FC } from 'react';
 import { useRecoilCallback, useRecoilValue, useSetRecoilState } from 'recoil';
 import { format } from 'date-fns';
-import { groupContextMenuAtom, openItemContextMenu } from '../../state/panelStateAtom';
 import { DefaultKeeIcon } from '../../entity/DefaultKeeIcon';
 import { SystemIcon } from '../../entity/SystemIcon';
-import { allItemSelector, groupStatSelector, selectItemSelector, yakpKdbxItemAtom } from '../../state/atom';
+import {
+  selectorAllItems,
+  selectorGroupInfo,
+  selectorSelectedItem,
+  selectorYakpItem,
+  groupContextMenuAtom,
+  openItemContextMenu,
+} from '../../state';
 import { ItemHelper } from '../../../main/entity/ItemHelper';
 import { LightTooltip } from '../common/LightToolTip';
 import { SvgPath } from '../common/SvgPath';
@@ -50,14 +56,14 @@ interface IProps {
 }
 
 export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisabled = false }) => {
-  const item = useRecoilValue(yakpKdbxItemAtom(itemSid));
-  const setSelection = useSetRecoilState(selectItemSelector);
+  const item = useRecoilValue(selectorYakpItem(itemSid));
+  const setSelection = useSetRecoilState(selectorSelectedItem);
   const setContextMenu = useSetRecoilState(groupContextMenuAtom);
   const setDrop = useRecoilCallback(({ set, snapshot }) => (group: YakpKdbxItem, droppedSid: string) => {
-    const dropped = snapshot.getLoadable(yakpKdbxItemAtom(droppedSid)).valueMaybe();
+    const dropped = snapshot.getLoadable(selectorYakpItem(droppedSid)).valueMaybe();
     if (!dropped) return;
 
-    const allItems = snapshot.getLoadable(allItemSelector).valueMaybe();
+    const allItems = snapshot.getLoadable(selectorAllItems).valueMaybe();
     const checkAllowToMove = (check?: YakpKdbxItem): boolean => {
       if (!check || !check.parentSid) return true;
       if (check.parentSid === dropped.sid || check.sid === dropped.sid) return false;
@@ -69,7 +75,7 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
       allItems
         ?.filter((i) => i.parentSid === parent.sid)
         .forEach((i) => {
-          set(yakpKdbxItemAtom(i.sid), (cur) => ItemHelper.apply(cur, (e) => (e.isRecycled = isRecycled)));
+          set(selectorYakpItem(i.sid), (cur) => ItemHelper.apply(cur, (e) => (e.isRecycled = isRecycled)));
           if (i.isGroup) updateChilds(i, isRecycled);
         });
     };
@@ -83,7 +89,7 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
     };
 
     set(
-      yakpKdbxItemAtom(droppedSid),
+      selectorYakpItem(droppedSid),
       ItemHelper.apply(dropped, (e) => {
         e.parentSid = group.sid;
         e.isRecycled = group.isRecycleBin ? true : group.isRecycled;
@@ -103,7 +109,7 @@ export const GroupItemRaw: FC<IProps> = ({ itemSid, nestLevel, isContextMenuDisa
     setDrop(item, droppedSid);
   };
 
-  const groupStat = useRecoilValue(groupStatSelector(itemSid));
+  const groupStat = useRecoilValue(selectorGroupInfo(itemSid));
 
   const showTotalEntries = () => {
     return (

@@ -17,7 +17,7 @@ import path from 'path';
 import { RenderSetting } from '../entity/RenderSetting';
 import { ReadKdbxResult } from '../entity/ReadKdbxResult';
 import { YakpError } from '../entity/YakpError';
-import { argon2Hash } from '../argon';
+import { argon2Hash } from '../argon2Hash';
 import { Setting } from '../entity/Setting';
 import { YaKeepassSetting } from '../entity/YaKeepassSetting';
 import { IpcChannels } from './IpcChannels';
@@ -70,12 +70,6 @@ export class IpcDispatcher {
       const kdbxIcons = this.database.meta.customIcons;
       const kdb = this.database;
 
-      // delete removed icons
-      //
-      kdbxIcons.forEach((_, key) => {
-        if (!changes.icons.find((i) => i.key === key)) kdbxIcons.delete(key);
-      });
-
       // add new icons
       //
       changes.icons.forEach((i) => {
@@ -86,6 +80,12 @@ export class IpcDispatcher {
           };
           kdbxIcons.set(i.key, iconData);
         }
+      });
+
+      // delete removed icons
+      //
+      kdbxIcons.forEach((_, key) => {
+        if (!changes.icons.find((i) => i.key === key)) kdbxIcons.delete(key);
       });
 
       // update items history

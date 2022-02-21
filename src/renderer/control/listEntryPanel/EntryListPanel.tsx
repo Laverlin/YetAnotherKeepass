@@ -1,7 +1,7 @@
 import { styled, Typography } from '@mui/material';
 import { FC } from 'react';
 import { useRecoilValue } from 'recoil';
-import { filteredIdsSelector } from 'renderer/state/FilterAtom';
+import { selectorFilteredEntryIds } from 'renderer/state/atomFilter';
 import { EntryContextMenu } from './EntryContextMenu';
 import { EntryItem } from './EntryItem';
 
@@ -27,7 +27,7 @@ const EmptyScreen = styled(Typography)(({ theme }) => ({
 }));
 
 export const EntryListPanel: FC = () => {
-  const filteredEntriesIds = useRecoilValue(filteredIdsSelector);
+  const filteredEntriesIds = useRecoilValue(selectorFilteredEntryIds);
 
   if (filteredEntriesIds.length === 0) {
     return (

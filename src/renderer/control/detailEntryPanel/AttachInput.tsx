@@ -7,7 +7,7 @@ import { IpcMainAddAttechments } from 'main/IpcCommunication/IpcExtention';
 import { FC } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { deletedBinaryAtom, yakpKdbxItemAtom } from 'renderer/state/atom';
+import { atomDeletedBinaries, selectorYakpItem } from 'renderer/state';
 import { SvgPath } from '../common/SvgPath';
 
 const Outlined = styled('div', {
@@ -23,6 +23,7 @@ const Outlined = styled('div', {
   borderColor: theme.palette.action.disabled,
   borderStyle: 'solid',
   borderRadius: '4px',
+  userSelect: 'none',
   '&:hover': disabled
     ? {}
     : {
@@ -73,8 +74,8 @@ interface IProps {
 }
 
 export const AttachInput: FC<IProps> = ({ entry, disabled }) => {
-  const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
-  const setDeletedBinary = useSetRecoilState(deletedBinaryAtom);
+  const setEntryState = useSetRecoilState(selectorYakpItem(entry.sid));
+  const setDeletedBinary = useSetRecoilState(atomDeletedBinaries);
 
   const handleAddAttachment = async () => {
     const attachments = await IpcMainAddAttechments(entry.sid);

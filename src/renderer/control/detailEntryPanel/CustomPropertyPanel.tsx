@@ -6,8 +6,7 @@ import { YakpKdbxItem } from 'main/entity/YakpKdbxItem';
 import { FC, useState } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { yakpKdbxItemAtom } from 'renderer/state/atom';
-import { closePanel, customPropertyPanelAtom } from 'renderer/state/panelStateAtom';
+import { selectorYakpItem, closePanel, customPropertyPanelAtom } from 'renderer/state';
 import { SvgPath } from '../common/SvgPath';
 
 const Panel = styled('div')(({ theme }) => ({
@@ -30,7 +29,7 @@ export const CustomPropertyPanel: FC<IProps> = ({ entry }) => {
   // Global state
   //
   const [panelState, setPanelState] = useRecoilState(customPropertyPanelAtom);
-  const setEntry = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
+  const setEntry = useSetRecoilState(selectorYakpItem(entry.sid));
 
   // Local state
   //

@@ -23,8 +23,7 @@ import { DefaultKeeIcon } from 'renderer/entity/DefaultKeeIcon';
 import { KeysOfType, PasswordGenerationOptions } from 'renderer/entity/PasswordGenerationOptions';
 import { PasswordGenerator } from 'renderer/entity/PasswordGenerator';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { yakpKdbxItemAtom } from 'renderer/state/atom';
-import { closePanel, passwordPanelAtom } from 'renderer/state/panelStateAtom';
+import { selectorYakpItem, closePanel, passwordPanelAtom } from 'renderer/state';
 import { SvgPath } from '../common/SvgPath';
 
 const Panel = styled('div')(({ theme }) => ({
@@ -50,7 +49,7 @@ export const PasswordGeneratorPanel: FC<IProps> = ({ entry }) => {
   // global state
   //
   const [panelState, setPanelState] = useRecoilState(passwordPanelAtom);
-  const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
+  const setEntryState = useSetRecoilState(selectorYakpItem(entry.sid));
 
   // local state
   //

@@ -7,15 +7,20 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { DefaultKeeIcon } from '../../entity/DefaultKeeIcon';
 import { displayFieldName } from '../../entity/DisplayFieldName';
 import { SystemIcon } from '../../entity/SystemIcon';
-import { yakpKdbxItemAtom, yakpMetadataAtom } from '../../state/atom';
-import { closeItemContextMenu, entryContextMenuAtom, notificationAtom } from '../../state/panelStateAtom';
+import {
+  closeItemContextMenu,
+  entryContextMenuAtom,
+  notificationAtom,
+  selectorYakpItem,
+  atomMetadata,
+} from '../../state';
 import { SvgPath } from '../common/SvgPath';
 
 export const EntryContextMenu: FC = () => {
   const [contextMenuState, setContextMenuState] = useRecoilState(entryContextMenuAtom);
   const setNotification = useSetRecoilState(notificationAtom);
-  const setEntry = useSetRecoilState(yakpKdbxItemAtom(contextMenuState.entry?.sid || ''));
-  const metadata = useRecoilValue(yakpMetadataAtom);
+  const setEntry = useSetRecoilState(selectorYakpItem(contextMenuState.entry?.sid || ''));
+  const metadata = useRecoilValue(atomMetadata);
 
   const handleCopy = (fieldName: string, event: React.MouseEvent<Element, MouseEvent>): void => {
     event.stopPropagation();

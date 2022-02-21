@@ -6,8 +6,7 @@ import { FC } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { DefaultKeeIcon } from 'renderer/entity/DefaultKeeIcon';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { yakpKdbxItemAtom } from 'renderer/state/atom';
-import { closePanel, customPropertyMenuAtom } from 'renderer/state/panelStateAtom';
+import { selectorYakpItem, closePanel, customPropertyMenuAtom } from 'renderer/state';
 import { SvgPath } from '../common/SvgPath';
 
 interface IProp {
@@ -18,7 +17,7 @@ export const CustomPropertyMenu: FC<IProp> = ({ entry }) => {
   // Global state
   //
   const [menuState, setMenuState] = useRecoilState(customPropertyMenuAtom);
-  const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
+  const setEntryState = useSetRecoilState(selectorYakpItem(entry.sid));
 
   // Handlers
   //

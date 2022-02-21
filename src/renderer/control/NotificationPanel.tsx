@@ -1,7 +1,7 @@
 import { Alert, Snackbar } from '@mui/material';
 import { FC } from 'react';
 import { useRecoilState } from 'recoil';
-import { notificationAtom } from '../state/panelStateAtom';
+import { notificationAtom } from '../state/atomPanelState';
 
 export const NotificationPanel: FC = () => {
   const [message, setMessage] = useRecoilState(notificationAtom);

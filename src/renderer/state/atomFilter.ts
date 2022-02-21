@@ -1,19 +1,20 @@
 import { ProtectedValue } from 'kdbxweb';
 import { atom, selector } from 'recoil';
+import { selectorAllItems, selectorYakpItem } from './atomYakpItem';
+import { atomSelectedGroup } from './atomSelectItem';
 import { allItemsGroup, allItemsGroupSid, YakpKdbxItem } from '../../main/entity/YakpKdbxItem';
 import { ISortMenuItem, sortMenuItems } from '../entity/ISortMenuItem';
-import { allItemSelector, selectGroupAtom, yakpKdbxItemAtom } from './atom';
 
 /**
  * Base selector to filter items in selected gorup.
  */
-export const groupEntriesSelector = selector<YakpKdbxItem[]>({
-  key: 'groupEntriesSelector',
+export const selectorGroupEntries = selector<YakpKdbxItem[]>({
+  key: 'selectorGroupEntries',
   get: ({ get }) => {
-    const groupSid = get(selectGroupAtom);
+    const groupSid = get(atomSelectedGroup);
     if (!groupSid) return [];
 
-    const selectedGroup = groupSid === allItemsGroupSid ? allItemsGroup : get(yakpKdbxItemAtom(groupSid));
+    const selectedGroup = groupSid === allItemsGroupSid ? allItemsGroup : get(selectorYakpItem(groupSid));
 
     const filter = (item: YakpKdbxItem) => {
       return (
@@ -23,18 +24,18 @@ export const groupEntriesSelector = selector<YakpKdbxItem[]>({
       );
     };
 
-    return get(allItemSelector).filter(filter);
+    return get(selectorAllItems).filter(filter);
   },
 });
 
 /**
  * Selector to get all available tags
  */
-export const allTagSelector = selector<string[]>({
+export const selectorAllTags = selector<string[]>({
   key: 'allTagSelector',
   get: ({ get }) => {
     let tags: string[] = [];
-    tags = get(allItemSelector)
+    tags = get(selectorAllItems)
       .map((i) => tags.concat(i.tags))
       .flat();
     return [...new Set(tags)].sort();
@@ -44,7 +45,7 @@ export const allTagSelector = selector<string[]>({
 /**
  * Atom to store the state of selected filters
  */
-export const tagFilterAtom = atom<string[]>({
+export const atomTagFilter = atom<string[]>({
   key: 'tagFilterAtom',
   default: [],
 });
@@ -52,7 +53,7 @@ export const tagFilterAtom = atom<string[]>({
 /**
  * Atom to store the state of selected colors
  */
-export const colorFilterAtom = atom<{ color: string }>({
+export const atomColorFilter = atom<{ color: string }>({
   key: 'colorFilterAtom',
   default: { color: '' },
 });
@@ -60,7 +61,7 @@ export const colorFilterAtom = atom<{ color: string }>({
 /**
  * Atom to store the state of query string
  */
-export const searchFilterAtom = atom<string>({
+export const atomSearchFilter = atom<string>({
   key: 'searchFilter',
   default: '',
 });
@@ -68,7 +69,7 @@ export const searchFilterAtom = atom<string>({
 /**
  * Atom to store the sort order state
  */
-export const sortEntriesAtom = atom<ISortMenuItem>({
+export const atomSortEntries = atom<ISortMenuItem>({
   key: 'top/sortMenu',
   default: sortMenuItems[0],
 });
@@ -76,8 +77,8 @@ export const sortEntriesAtom = atom<ISortMenuItem>({
 /**
  * Selector to filter items according to all available filters and sort them
  */
-export const filteredIdsSelector = selector<string[]>({
-  key: 'filteredIdsSelector',
+export const selectorFilteredEntryIds = selector<string[]>({
+  key: 'selectorFilteredEntryIds',
   get: ({ get }) => {
     const filterQuery = (item: YakpKdbxItem, query: string): boolean => {
       const normalizedQuery = query.toLocaleLowerCase();
@@ -92,11 +93,11 @@ export const filteredIdsSelector = selector<string[]>({
       );
     };
 
-    const colorFilter = get(colorFilterAtom);
-    const tagFilter = get(tagFilterAtom);
-    const searchFilter = get(searchFilterAtom);
-    const sortField = get(sortEntriesAtom);
-    let filtered = get(groupEntriesSelector);
+    const colorFilter = get(atomColorFilter);
+    const tagFilter = get(atomTagFilter);
+    const searchFilter = get(atomSearchFilter);
+    const sortField = get(atomSortEntries);
+    let filtered = get(selectorGroupEntries);
 
     if (colorFilter.color) filtered = filtered.filter((e) => e.bgColor === colorFilter.color);
     if (tagFilter.length > 0) filtered = filtered.filter((e) => e.tags.filter((t) => tagFilter.includes(t)).length > 0);
@@ -104,5 +105,11 @@ export const filteredIdsSelector = selector<string[]>({
     filtered = filtered.slice().sort(sortField.compare);
 
     return filtered.map((i) => i.sid);
+  },
+  set: ({ reset }) => {
+    reset(atomColorFilter);
+    reset(atomTagFilter);
+    reset(atomSearchFilter);
+    reset(atomSortEntries);
   },
 });

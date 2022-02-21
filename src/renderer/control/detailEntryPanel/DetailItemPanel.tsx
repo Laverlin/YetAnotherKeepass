@@ -5,23 +5,21 @@ import { allItemsGroupSid } from 'main/entity/YakpKdbxItem';
 import { FC } from 'react';
 import { useRecoilCallback, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
-  selectItemSelector,
-  yakpCustomIconSelector,
-  yakpHistoryItemsAtom,
-  yakpKdbxItemAtom,
-} from 'renderer/state/atom';
-import { DatePicker } from '@mui/lab';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { historyAtom } from 'renderer/state/historyAtom';
-import { DefaultKeeIcon } from 'renderer/entity/DefaultKeeIcon';
-import { SystemIcon } from 'renderer/entity/SystemIcon';
-import {
+  selectorSelectedItem,
+  selectorCustomIcon,
+  atomHistoryItems,
+  selectorYakpItem,
   colorChoisePanelAtom,
   customPropertyPanelAtom,
   iconChoisePanelAtom,
   openPanel,
-} from 'renderer/state/panelStateAtom';
-import { allTagSelector } from 'renderer/state/FilterAtom';
+  selectorAllTags,
+} from 'renderer/state';
+import { DatePicker } from '@mui/lab';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { atomHistory } from 'renderer/state/atomHistory';
+import { DefaultKeeIcon } from 'renderer/entity/DefaultKeeIcon';
+import { SystemIcon } from 'renderer/entity/SystemIcon';
 import { ProtectedValue } from 'kdbxweb';
 import DateFnsUtils from '@date-io/date-fns';
 import { SvgPath } from '../common/SvgPath';
@@ -128,17 +126,17 @@ const FieldMix = styled('div')(({ theme }) => ({
 export const DetailItemPanel: FC = () => {
   // Global state
   //
-  const entrySid = useRecoilValue(selectItemSelector) || allItemsGroupSid;
-  const [entry, setEntryState] = useRecoilState(yakpKdbxItemAtom(entrySid));
-  const historyEntries = useRecoilValue(yakpHistoryItemsAtom(entry.sid));
+  const entrySid = useRecoilValue(selectorSelectedItem) || allItemsGroupSid;
+  const [entry, setEntryState] = useRecoilState(selectorYakpItem(entrySid));
+  const historyEntries = useRecoilValue(atomHistoryItems(entry.sid));
   const customIcon = useRecoilCallback(({ snapshot }) => (iconSid: string) => {
-    return snapshot.getLoadable(yakpCustomIconSelector(iconSid)).valueMaybe();
+    return snapshot.getLoadable(selectorCustomIcon(iconSid)).valueMaybe();
   });
-  const historyState = useRecoilValue(historyAtom(entrySid));
+  const historyState = useRecoilValue(atomHistory(entrySid));
   const setCustomPropPanel = useSetRecoilState(customPropertyPanelAtom);
   const setIconPanel = useSetRecoilState(iconChoisePanelAtom);
   const setColorPanel = useSetRecoilState(colorChoisePanelAtom);
-  const allTags = useRecoilValue(allTagSelector);
+  const allTags = useRecoilValue(selectorAllTags);
 
   if (!entry || entry.isAllItemsGroup) {
     return <EmptyScreen variant="h2">Select Item to View</EmptyScreen>;
