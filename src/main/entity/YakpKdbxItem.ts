@@ -88,3 +88,4 @@ allItemsGroup.isAllItemsGroup = true;
 allItemsGroup.isGroup = true;
 allItemsGroup.sid = allItemsGroupSid;
 allItemsGroup.title = 'All Items';
+allItemsGroup.isSelected = true;

@@ -16,12 +16,13 @@ import { IpcMainOpenDialog, IpcMainReadKdbx } from 'main/IpcCommunication/IpcExt
 
 import { FC, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
-import { allHistoryItemsSelector, allItemSelector, yakpCustomIconsAtom, yakpMetadataAtom } from 'renderer/state/atom';
+import { useResetRecoilState, useSetRecoilState } from 'recoil';
+import { selectorAllHistoryItems, selectorAllItems, atomCustomIcons, atomMetadata } from '../state';
 import { DefaultKeeIcon } from '../entity/DefaultKeeIcon';
 import { SystemIcon } from '../entity/SystemIcon';
 import { Spinner } from './common/Spinner';
 import { SvgPath } from './common/SvgPath';
+import { atomStateReset } from '../state/atomStateReset';
 
 const Form = styled('form')(() => ({
   display: 'flex',
@@ -106,10 +107,11 @@ export const OpenFilePanel: FC = () => {
   const [isLoading, setLoading] = useState(false);
   const [setting, setSetting] = useState<RenderSetting | undefined>(undefined);
 
-  const setItems = useSetRecoilState(allItemSelector);
-  const setHistoryItems = useSetRecoilState(allHistoryItemsSelector);
-  const setMetadata = useSetRecoilState(yakpMetadataAtom);
-  const setCustomIcons = useSetRecoilState(yakpCustomIconsAtom);
+  const setItems = useSetRecoilState(selectorAllItems);
+  const setHistoryItems = useSetRecoilState(selectorAllHistoryItems);
+  const setMetadata = useSetRecoilState(atomMetadata);
+  const setCustomIcons = useSetRecoilState(atomCustomIcons);
+  const resetGlobalState = useResetRecoilState(atomStateReset);
 
   const navigate = useNavigate();
 
@@ -167,15 +169,16 @@ export const OpenFilePanel: FC = () => {
           : `${readKdbxResult.yakpError.errorId}: ${readKdbxResult.yakpError.message}`;
       setError(errorMsg);
     } else {
+      resetGlobalState();
       updateRecentFiles(readKdbxResult.yakpMetadata.kdbxFile);
 
       const items = readKdbxResult.yakpKdbxItems.map((i) => ItemHelper.fromSerialized(i));
       const historyItems = readKdbxResult.yakpHistoryItems.map((i) => ItemHelper.fromSerializedHistory(i));
 
+      setItems(items);
       setMetadata(readKdbxResult.yakpMetadata);
       setCustomIcons(readKdbxResult.customIcons);
       setHistoryItems(historyItems);
-      setItems(items);
       navigate('/app');
     }
   };

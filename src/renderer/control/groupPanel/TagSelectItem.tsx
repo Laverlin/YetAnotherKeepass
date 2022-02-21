@@ -3,7 +3,7 @@ import { FC, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { DefaultColors } from 'renderer/entity/DefaultColors';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { allTagSelector, tagFilterAtom } from 'renderer/state/FilterAtom';
+import { selectorAllTags, atomTagFilter } from 'renderer/state/atomFilter';
 import { SvgPath } from '../common/SvgPath';
 import { GroupIconStyle } from './GroupIconStyle';
 import { GroupItemStyle } from './GroupItemStyle';
@@ -20,8 +20,8 @@ const MenuStyle = styled(Menu)(() => ({
 export const TagSelectListItem: FC = () => {
   // global state
   //
-  const [tagFilter, setTagFilter] = useRecoilState(tagFilterAtom);
-  const tags = useRecoilValue(allTagSelector);
+  const [tagFilter, setTagFilter] = useRecoilState(atomTagFilter);
+  const tags = useRecoilValue(selectorAllTags);
 
   // local state
   //

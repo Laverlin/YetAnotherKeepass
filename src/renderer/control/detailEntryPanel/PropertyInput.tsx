@@ -6,8 +6,7 @@ import { useSetRecoilState } from 'recoil';
 import { displayFieldName } from 'renderer/entity/DisplayFieldName';
 import { YakpKdbxItem } from '../../../main/entity/YakpKdbxItem';
 import { SystemIcon } from '../../entity/SystemIcon';
-import { yakpKdbxItemAtom } from '../../state/atom';
-import { customPropertyMenuAtom, notificationAtom, openPanel, passwordPanelAtom } from '../../state/panelStateAtom';
+import { selectorYakpItem, customPropertyMenuAtom, notificationAtom, openPanel, passwordPanelAtom } from '../../state';
 import { SvgPath } from '../common/SvgPath';
 
 const FieldInput = styled('div')(({ theme }) => ({
@@ -52,7 +51,7 @@ export const PropertyInput: FC<IProp> = ({
 }) => {
   // global state
   //
-  const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
+  const setEntryState = useSetRecoilState(selectorYakpItem(entry.sid));
   const setMenuState = useSetRecoilState(customPropertyMenuAtom);
   const setPwdPanelState = useSetRecoilState(passwordPanelAtom);
   const setNotification = useSetRecoilState(notificationAtom);

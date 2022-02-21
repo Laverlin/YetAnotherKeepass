@@ -6,8 +6,14 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { DefaultKeeIcon } from '../../entity/DefaultKeeIcon';
 import { displayFieldName } from '../../entity/DisplayFieldName';
 import { SystemIcon } from '../../entity/SystemIcon';
-import { selectItemSelector, yakpCustomIconSelector, yakpKdbxItemAtom } from '../../state/atom';
-import { entryContextMenuAtom, notificationAtom, openItemContextMenu } from '../../state/panelStateAtom';
+import {
+  selectorSelectedItem,
+  selectorCustomIcon,
+  selectorYakpItem,
+  entryContextMenuAtom,
+  notificationAtom,
+  openItemContextMenu,
+} from '../../state';
 import { LightTooltip } from '../common/LightToolTip';
 import { SvgPath } from '../common/SvgPath';
 
@@ -156,11 +162,11 @@ interface IProps {
 }
 
 export const EntryItemRaw: FC<IProps> = ({ entrySid }) => {
-  const setSelection = useSetRecoilState(selectItemSelector);
+  const setSelection = useSetRecoilState(selectorSelectedItem);
   const setContextMenuState = useSetRecoilState(entryContextMenuAtom);
   const setNotification = useSetRecoilState(notificationAtom);
-  const entry = useRecoilValue(yakpKdbxItemAtom(entrySid));
-  const customIcon = useRecoilValue(yakpCustomIconSelector(entry.customIconSid || ''));
+  const entry = useRecoilValue(selectorYakpItem(entrySid));
+  const customIcon = useRecoilValue(selectorCustomIcon(entry.customIconSid || ''));
 
   const handleCopy = (fieldName: string) => {
     const value = entry.fields[fieldName];

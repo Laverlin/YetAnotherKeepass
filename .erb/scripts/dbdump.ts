@@ -1,6 +1,6 @@
 import { Credentials, CryptoEngine, Kdbx, ProtectedValue } from 'kdbxweb';
 import fs from 'fs';
-import {argon2Hash} from './../../src/main/argon';
+import {argon2Hash} from './../../src/main/argon2Hash';
 
 const args = process.argv.slice(2);
 

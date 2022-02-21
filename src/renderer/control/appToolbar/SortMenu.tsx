@@ -3,12 +3,12 @@ import { FC } from 'react';
 import { useRecoilState } from 'recoil';
 import { ISortMenuItem, sortMenuItems } from '../../entity/ISortMenuItem';
 import { SystemIcon } from '../../entity/SystemIcon';
-import { sortEntriesAtom } from '../../state/FilterAtom';
-import { closePanel, toolSortMenuAtom } from '../../state/panelStateAtom';
+import { atomSortEntries } from '../../state/atomFilter';
+import { closePanel, toolSortMenuAtom } from '../../state/atomPanelState';
 import { SvgPath } from '../common/SvgPath';
 
 export const SortMenu: FC = () => {
-  const [sortField, setSortField] = useRecoilState(sortEntriesAtom);
+  const [sortField, setSortField] = useRecoilState(atomSortEntries);
   const [sortMenu, setSortMenu] = useRecoilState(toolSortMenuAtom);
 
   const handleSort = (field: ISortMenuItem) => {

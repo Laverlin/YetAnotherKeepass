@@ -6,8 +6,7 @@ import { FC } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { DefaultColors } from 'renderer/entity/DefaultColors';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { yakpKdbxItemAtom } from 'renderer/state/atom';
-import { closePanel, colorChoisePanelAtom } from 'renderer/state/panelStateAtom';
+import { selectorYakpItem, closePanel, colorChoisePanelAtom } from 'renderer/state';
 import { SvgPath } from '../common/SvgPath';
 
 const Panel = styled('div')(({ theme }) => ({
@@ -43,7 +42,7 @@ interface IProps {
 
 export const ColorSelectPanel: FC<IProps> = ({ entry }) => {
   const [panelState, setPanelState] = useRecoilState(colorChoisePanelAtom);
-  const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
+  const setEntryState = useSetRecoilState(selectorYakpItem(entry.sid));
 
   const handleSetColor = (color: string) => {
     setEntryState(ItemHelper.apply(entry, (e) => (e.bgColor = color)));

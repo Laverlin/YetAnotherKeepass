@@ -2,7 +2,7 @@ import { IconButton, InputAdornment, OutlinedInput, styled } from '@mui/material
 import { FC } from 'react';
 import { useRecoilState } from 'recoil';
 import { SystemIcon } from '../../entity/SystemIcon';
-import { searchFilterAtom } from '../../state/FilterAtom';
+import { atomSearchFilter } from '../../state/atomFilter';
 import { SvgPath } from '../common/SvgPath';
 
 const SearchInput = styled(OutlinedInput)(({ theme }) => ({
@@ -28,7 +28,7 @@ const SearchInput = styled(OutlinedInput)(({ theme }) => ({
 }));
 
 export const SearchBox: FC = () => {
-  const [searchFilter, setSearchFilter] = useRecoilState(searchFilterAtom);
+  const [searchFilter, setSearchFilter] = useRecoilState(atomSearchFilter);
 
   return (
     <SearchInput

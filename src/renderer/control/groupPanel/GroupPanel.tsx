@@ -3,7 +3,7 @@ import { List, styled } from '@mui/material';
 import { allItemsGroupSid } from 'main/entity/YakpKdbxItem';
 import { FC, ReactFragment } from 'react';
 import { useRecoilValue } from 'recoil';
-import { allItemSelector, yakpMetadataAtom } from '../../state/atom';
+import { selectorAllItems, atomMetadata } from '../../state';
 import { ColorSelectItem } from './ColorSelectItem';
 import { GroupContextMenu } from './GroupContextMenu';
 import { GroupItem } from './GroupItem';
@@ -52,8 +52,8 @@ const RecycleBinItem = styled('div')(({ theme }) => ({
 }));
 
 export const GroupPanel: FC = () => {
-  const items = useRecoilValue(allItemSelector);
-  const metadata = useRecoilValue(yakpMetadataAtom);
+  const items = useRecoilValue(selectorAllItems);
+  const metadata = useRecoilValue(atomMetadata);
   if (!metadata) throw new Error('Metadata are not available, possible db open error');
 
   const renderChildGroups = (groupSid: string, nestLevel = 0): ReactFragment => {

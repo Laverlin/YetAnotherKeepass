@@ -3,7 +3,7 @@ import { FC, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { DefaultColors } from 'renderer/entity/DefaultColors';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { colorFilterAtom } from 'renderer/state/FilterAtom';
+import { atomColorFilter } from 'renderer/state/atomFilter';
 import { SvgPath } from '../common/SvgPath';
 import { GroupIconStyle } from './GroupIconStyle';
 import { GroupItemStyle } from './GroupItemStyle';
@@ -28,7 +28,7 @@ const FlagIcon = styled(SvgPath, {
 }));
 
 export const ColorSelectItem: FC = () => {
-  const [colorFilter, setColorFilter] = useRecoilState(colorFilterAtom);
+  const [colorFilter, setColorFilter] = useRecoilState(atomColorFilter);
   const [isShowColorSelection, setShowColorSelection] = useState(false);
 
   const colors = [

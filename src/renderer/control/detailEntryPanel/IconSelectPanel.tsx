@@ -7,8 +7,14 @@ import { FC, useState } from 'react';
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil';
 import { DefaultKeeIcon } from 'renderer/entity/DefaultKeeIcon';
 import { SystemIcon } from 'renderer/entity/SystemIcon';
-import { allItemSelector, isDbChangedAtom, yakpCustomIconsAtom, yakpKdbxItemAtom } from 'renderer/state/atom';
-import { closePanel, iconChoisePanelAtom } from 'renderer/state/panelStateAtom';
+import {
+  selectorAllItems,
+  atomDbChange,
+  atomCustomIcons,
+  selectorYakpItem,
+  closePanel,
+  iconChoisePanelAtom,
+} from '../../state';
 import { SvgPath } from '../common/SvgPath';
 
 const Panel = styled('div')(({ theme }) => ({
@@ -100,18 +106,18 @@ const checkIfIconUsed = (chEntry: YakpKdbxItem, iconSid: string): boolean => {
 export const IconSelectPanel: FC<IProps> = ({ entry }) => {
   // global state
   //
-  const setEntryState = useSetRecoilState(yakpKdbxItemAtom(entry.sid));
+  const setEntryState = useSetRecoilState(selectorYakpItem(entry.sid));
   const [panelState, setPanelState] = useRecoilState(iconChoisePanelAtom);
-  const SetDbChanged = useSetRecoilState(isDbChangedAtom);
+  const SetDbChanged = useSetRecoilState(atomDbChange);
   const dropIcon = useRecoilCallback(({ set, snapshot }) => (iconSid: string) => {
     snapshot
-      .getLoadable(allItemSelector)
+      .getLoadable(selectorAllItems)
       .valueMaybe()
       ?.filter((i) => checkIfIconUsed(i, iconSid))
       .forEach((i) => {
         if (i.customIconSid === iconSid)
           set(
-            yakpKdbxItemAtom(i.sid),
+            selectorYakpItem(i.sid),
             ItemHelper.apply(i, (e) => (e.customIconSid = undefined))
           );
         i.history.forEach((ih) => {
@@ -122,7 +128,7 @@ export const IconSelectPanel: FC<IProps> = ({ entry }) => {
             const index = hc.findIndex((hci) => hci.customIconSid === iconSid);
             hc.splice(index, 1, cloned);
             set(
-              yakpKdbxItemAtom(i.sid),
+              selectorYakpItem(i.sid),
               ItemHelper.apply(i, (e) => (e.history = hc))
             );
           }
@@ -132,12 +138,12 @@ export const IconSelectPanel: FC<IProps> = ({ entry }) => {
   const getUnused = useRecoilCallback(({ snapshot }) => () => {
     const unusedIcons: string[] = [];
     snapshot
-      .getLoadable(yakpCustomIconsAtom)
+      .getLoadable(atomCustomIcons)
       .valueMaybe()
       ?.forEach((i) => {
         if (
           !snapshot
-            .getLoadable(allItemSelector)
+            .getLoadable(selectorAllItems)
             .valueMaybe()
             ?.find((e) => checkIfIconUsed(e, i.key))
         )
@@ -147,7 +153,7 @@ export const IconSelectPanel: FC<IProps> = ({ entry }) => {
   });
 
   const [selectedIcons, setSelectedIcons] = useState([] as string[]);
-  const [icons, setIcons] = useRecoilState(yakpCustomIconsAtom);
+  const [icons, setIcons] = useRecoilState(atomCustomIcons);
 
   if (!panelState.isShowPanel) return null;
 

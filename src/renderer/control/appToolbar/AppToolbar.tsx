@@ -5,21 +5,19 @@ import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { SystemCommand } from '../../../main/IpcCommunication/IpcDispatcher';
 import {
-  allItemSelector,
-  deletedBinaryAtom as deletedBinariesAtom,
-  deletedEntriesAtom,
-  isDbSavedSelector,
-  yakpCustomIconsAtom,
-  yakpMetadataAtom,
-} from '../../state/atom';
-import {
+  selectorAllItems,
+  atomDeletedBinaries as deletedBinariesAtom,
+  atomDeletedEntries,
+  selectorIsDbSaved,
+  atomCustomIcons,
+  atomMetadata,
   closePanel,
   ConfirmationChoice,
   confirmationDialogAtom,
   notificationAtom,
   openPanel,
   toolSortMenuAtom,
-} from '../../state/panelStateAtom';
+} from '../../state';
 import { consts } from '../../entity/consts';
 import { SystemIcon } from '../../entity/SystemIcon';
 import { Spinner } from '../common/Spinner';
@@ -89,15 +87,15 @@ const DbName = styled(Typography)(({ theme }) => ({
 
 export const AppToolbar: FC = () => {
   const location = useLocation();
-  const meta = useRecoilValue(yakpMetadataAtom);
-  const [isDbChanged, setDbSaved] = useRecoilState(isDbSavedSelector);
+  const meta = useRecoilValue(atomMetadata);
+  const [isDbChanged, setDbSaved] = useRecoilState(selectorIsDbSaved);
   const setSortMenu = useSetRecoilState(toolSortMenuAtom);
   const setConfirmationState = useSetRecoilState(confirmationDialogAtom);
   const setNotification = useSetRecoilState(notificationAtom);
 
-  const allIcons = useRecoilValue(yakpCustomIconsAtom);
-  const allItems = useRecoilValue(allItemSelector);
-  const deletedEntries = useRecoilValue(deletedEntriesAtom);
+  const allIcons = useRecoilValue(atomCustomIcons);
+  const allItems = useRecoilValue(selectorAllItems);
+  const deletedEntries = useRecoilValue(atomDeletedEntries);
   const deletedBinaries = useRecoilValue(deletedBinariesAtom);
 
   const resolver = useRef<{ resolve: (choice: ConfirmationChoice) => void }>();
