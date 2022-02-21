@@ -79,6 +79,12 @@ const Icon = styled('span')(({ theme }) => ({
   visibility: 'hidden',
 }));
 
+const CloseIconButton = styled(IconButton)(() => ({
+  marginLeft: 'auto',
+  width: '30px',
+  height: '30px',
+}));
+
 const CheckedIcon = styled(Icon)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   visibility: 'visible',
@@ -228,6 +234,11 @@ export const IconSelectPanel: FC<IProps> = ({ entry }) => {
             <SubHeader variant="h5" color="primary">
               Default Icons
             </SubHeader>
+            <Tooltip title="Close Panel">
+              <CloseIconButton color="primary" onClick={() => setPanelState(closePanel)}>
+                <SvgPath path={SystemIcon.clear} />
+              </CloseIconButton>
+            </Tooltip>
           </Grid>
           {Object.keys(DefaultKeeIcon)
             .filter((i) => i !== 'get')
